@@ -40,11 +40,11 @@ const fullScreen = () => {
   else document.exitFullscreen()
 }
 //退出登录点击的回调
-const logout = () => {
+const logout = async () => {
   //1.向服务器发请求[退出登录接口]
   //2.仓库中关于用户相关的数据清空[token|userName|avatar]
   //3.跳转到登录页面
-  userStore.userLogout()
+  await userStore.userLogout()
   //跳转到登录页面
   $router.push({ path: '/login', query: { redirect: $route.path } })
 }

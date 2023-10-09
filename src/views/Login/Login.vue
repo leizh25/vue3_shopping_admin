@@ -36,7 +36,7 @@ let $router = useRouter()
 //获取路由对象
 const $route = useRoute()
 //收集账号与密码的数据
-let loginFormData = reactive({ username: 'admin', password: '111111' })
+let loginFormData = reactive({ username: 'admin', password: 'atguigu123' })
 //定义一个变量控制按钮按钮加载效果
 let loading = ref(false)
 //获取el-form组件

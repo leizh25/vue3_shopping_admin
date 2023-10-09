@@ -12,4 +12,5 @@ vue3 vue-router pinia vite typescript
 4. pnpm dev
 
 ## 配置文件
+
     /src/setting.ts

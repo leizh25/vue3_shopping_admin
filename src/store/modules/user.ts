@@ -1,9 +1,8 @@
 //创建用户相关的小仓库
 import { defineStore } from 'pinia'
 //引入接口
-import { reqLogin, reqUserInfo } from '@/api/user'
-//引入数据类型
-import type { loginForm, loginResponseData } from '@/api/user/type'
+import { reqLogin, reqUserInfo, reqLogout } from '@/api/user'
+
 import { UserState } from './types/type'
 //引入操作本地存储的工具方法
 import { GET_TOKEN, SET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
@@ -23,43 +22,51 @@ const useUserStore = defineStore('User', {
   //处理异步或者逻辑的地方
   actions: {
     //用户登录的方法
-    async userLogin(data: loginForm) {
-      const res: loginResponseData = await reqLogin(data)
-      // console.log('res: ', res);
+    async userLogin(data: any) {
+      const res: any = await reqLogin(data)
+      // console.log('res: ', res)
       //登录请求成功200 ->token
       //登录请求失败201 ->登录失败错误信息
       if (res.code == 200) {
         //pinia仓库存储token
         //由于pinia或者vuex存储数据其实就是利用js对象
-        this.token = res.data.token as string
+        this.token = res.data as string
         //本地存储持久化存储一份
-        SET_TOKEN(res.data.token as string)
+        SET_TOKEN(res.data as string)
         //能保证当前async函数返回一个成功的promise
         return 'ok'
       } else {
-        return Promise.reject(new Error(res.data.message))
+        return Promise.reject(new Error(res.message))
       }
     },
     //获取用户信息的方法
     async userInfo() {
       //获取用户信息存储仓库当中[用户头像,名字]
       const res = await reqUserInfo()
+      // console.log('res: ', res)
       //如果获取用户信息成功,存储一下用户信息
       if (res.code == 200) {
-        this.userName = res.data.checkUser.username
-        this.avatar = res.data.checkUser.avatar
+        this.userName = res.data.name
+        this.avatar = res.data.avatar
         return 'ok'
       } else {
-        return Promise.reject('获取用户信息失败')
+        return Promise.reject(new Error(res.message))
       }
     },
     //退出登录
-    userLogout() {
-      //目前没有mock接口:退出登录接口(通知服务器本地用户唯一标识失效)
-      this.token = ''
-      this.userName = ''
-      this.avatar = ''
-      REMOVE_TOKEN()
+    async userLogout() {
+      //退出登录接口(通知服务器本地用户唯一标识失效)
+      const res = await reqLogout()
+      // console.log('res: ', res)
+      if (res.code == 200) {
+        this.token = ''
+        this.userName = ''
+        this.avatar = ''
+        REMOVE_TOKEN()
+        return 'ok'
+      } else {
+        return Promise.reject(new Error(res.message))
+      }
     },
   },
   //计算属性
