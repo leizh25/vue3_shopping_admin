@@ -8,6 +8,7 @@ import { UserState } from './types/type'
 import { GET_TOKEN, SET_TOKEN, REMOVE_TOKEN } from '@/utils/token'
 //引入路由(常量路由)
 import { constantRoutes } from '@/router/routes'
+import { loginResponseData, loginFormData, userInfoResponseData } from '@/api/user/type'
 //创建用户小仓库
 const useUserStore = defineStore('User', {
   //小仓库存储数据的地方
@@ -22,8 +23,8 @@ const useUserStore = defineStore('User', {
   //处理异步或者逻辑的地方
   actions: {
     //用户登录的方法
-    async userLogin(data: any) {
-      const res: any = await reqLogin(data)
+    async userLogin(data: loginFormData) {
+      const res: loginResponseData = await reqLogin(data)
       // console.log('res: ', res)
       //登录请求成功200 ->token
       //登录请求失败201 ->登录失败错误信息
@@ -42,7 +43,7 @@ const useUserStore = defineStore('User', {
     //获取用户信息的方法
     async userInfo() {
       //获取用户信息存储仓库当中[用户头像,名字]
-      const res = await reqUserInfo()
+      const res: userInfoResponseData = await reqUserInfo()
       // console.log('res: ', res)
       //如果获取用户信息成功,存储一下用户信息
       if (res.code == 200) {
@@ -56,7 +57,7 @@ const useUserStore = defineStore('User', {
     //退出登录
     async userLogout() {
       //退出登录接口(通知服务器本地用户唯一标识失效)
-      const res = await reqLogout()
+      const res: any = await reqLogout()
       // console.log('res: ', res)
       if (res.code == 200) {
         this.token = ''
