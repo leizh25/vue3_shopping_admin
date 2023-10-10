@@ -53,18 +53,19 @@
 <script setup lang="ts">
 //引入组合式API函数ref
 import { onMounted, ref } from 'vue'
+import { reqHasTrademark } from '@/api/product/trademark'
+import type { Records, TrademarkResponseData } from '@/api/product/trademark/type'
 //当前页码
 let pageNo = ref<number>(1)
-import { reqHasTrademark } from '@/api/product/trademark'
 //每一页展示多少条数据
 let limit = ref<number>(3)
 //存储已有品牌的数据的总数
 let total = ref<number>(0)
 //存储已有品牌的数据
-let trademarkArr = ref<any>([])
+let trademarkArr = ref<Records>([])
 //获取已有品牌的接口封装为一个函数,再任何的情况下获取数据,调用此函数即可
 const getHasTrademark = async () => {
-  const res = await reqHasTrademark(pageNo.value, limit.value)
+  const res: TrademarkResponseData = await reqHasTrademark(pageNo.value, limit.value)
   // console.log('res: ', res.data)
   if (res.code == 200) {
     //存储已有品牌的数量
