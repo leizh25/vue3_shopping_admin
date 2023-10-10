@@ -1,7 +1,7 @@
 <template>
   <el-card class="box-card">
     <!-- 卡片顶部的添加品牌按钮 -->
-    <el-button type="primary" icon="plus">添加品牌</el-button>
+    <el-button type="primary" icon="plus" @click="addTrademark">添加品牌</el-button>
     <!-- 表格组件: 用于展示已有的品牌数据 -->
     <!-- 
       table
@@ -26,7 +26,7 @@
       </el-table-column>
       <el-table-column label="操作">
         <template #default>
-          <el-button type="primary" size="small" icon="edit"></el-button>
+          <el-button type="primary" size="small" icon="edit" @click="updateTrademark"></el-button>
           <el-button type="primary" size="small" icon="delete"></el-button>
         </template>
       </el-table-column>
@@ -51,6 +51,35 @@
       @size-change="sizeChange"
     />
   </el-card>
+  <!-- 对话框组件:在添加品牌与修改已有品牌的业务时候使用结构 -->
+  <!-- 
+    v-model:属性用户控制对话框的显示与隐藏  true显示  false隐藏
+    title:对话框左上角的标题
+   -->
+  <el-dialog v-model="dialogFormVisible" title="添加品牌">
+    <el-form style="width: 80%">
+      <el-form-item label="品牌名称" required label-width="80px">
+        <el-input placeholder="请您输入品牌名称"></el-input>
+      </el-form-item>
+      <el-form-item label="品牌LOGO" label-width="80px">
+        <el-upload
+          class="avatar-uploader"
+          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+          :show-file-list="false"
+          :on-success="handleAvatarSuccess"
+          :before-upload="beforeAvatarUpload"
+        >
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
+        </el-upload>
+      </el-form-item>
+    </el-form>
+    <!-- 具名插槽:footer -->
+    <template #footer>
+      <el-button type="primary" @click="cancel">取消</el-button>
+      <el-button type="primary" @click="confirm">确定</el-button>
+    </template>
+  </el-dialog>
 </template>
 <script setup lang="ts">
 //引入组合式API函数ref
@@ -76,6 +105,8 @@ const getHasTrademark = async (page = 1) => {
     trademarkArr.value = res.data.records
   }
 }
+// 控制对话框的显示与隐藏
+let dialogFormVisible = ref<boolean>(true)
 //组件挂载完毕发一次请求, 获取第一页三个已有品牌的数据
 onMounted(() => getHasTrademark())
 
@@ -93,5 +124,44 @@ const sizeChange = () => {
   //当前每一页的数据量发生变化的时候,当前页码归一
   getHasTrademark()
 }
+//添加品牌按钮的回调
+const addTrademark = () => {
+  //对话框显示
+  dialogFormVisible.value = true
+}
+//修改品牌按钮的回调
+const updateTrademark = () => {
+  //对话框显示
+  dialogFormVisible.value = true
+}
+//对话框取消按钮的回调
+const cancel = () => {
+  //对话框取消
+  dialogFormVisible.value = false
+}
+const confirm = () => {
+  dialogFormVisible.value = false
+}
 </script>
-<style scoped></style>
+<style>
+.avatar-uploader .el-upload {
+  border: 1px dashed var(--el-border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--el-transition-duration-fast);
+}
+
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+}
+</style>
