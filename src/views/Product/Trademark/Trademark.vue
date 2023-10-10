@@ -59,17 +59,21 @@
   <el-dialog v-model="dialogFormVisible" title="添加品牌">
     <el-form style="width: 80%">
       <el-form-item label="品牌名称" required label-width="80px">
-        <el-input placeholder="请您输入品牌名称"></el-input>
+        <el-input placeholder="请您输入品牌名称" v-model="trademarkParams.tmName"></el-input>
       </el-form-item>
       <el-form-item label="品牌LOGO" label-width="80px">
+        <!-- 
+          upload组件相应属性
+            action:	图片上传路径/api,代理服务器不发送此次post请求
+        -->
         <el-upload
           class="avatar-uploader"
-          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+          action="/api/admin/product/fileUpload"
           :show-file-list="false"
           :on-success="handleAvatarSuccess"
           :before-upload="beforeAvatarUpload"
         >
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+          <img v-if="trademarkParams.logoUrl" :src="trademarkParams.logoUrl" class="avatar" />
           <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
         </el-upload>
       </el-form-item>
@@ -83,9 +87,10 @@
 </template>
 <script setup lang="ts">
 //引入组合式API函数ref
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { reqHasTrademark } from '@/api/product/trademark'
-import type { Records, TrademarkResponseData } from '@/api/product/trademark/type'
+import type { Records, TrademarkResponseData, Trademark } from '@/api/product/trademark/type'
+import { ElMessage, UploadProps } from 'element-plus'
 //当前页码
 let pageNo = ref<number>(1)
 //每一页展示多少条数据
@@ -94,6 +99,11 @@ let limit = ref<number>(3)
 let total = ref<number>(0)
 //存储已有品牌的数据
 let trademarkArr = ref<Records>([])
+//定义一个收集新增品牌的数据
+let trademarkParams = reactive<Trademark>({
+  logoUrl: '',
+  tmName: '',
+})
 //获取已有品牌的接口封装为一个函数,再任何的情况下获取数据,调用此函数即可
 const getHasTrademark = async (page = 1) => {
   pageNo.value = page
@@ -141,6 +151,28 @@ const cancel = () => {
 }
 const confirm = () => {
   dialogFormVisible.value = false
+}
+
+//上传图片组件 -> 上传图片之前触发的钩子函数
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  //在图片上传成功之前触发, 在上传文件之前可以约束文件的类型和大小
+  //要求:上传文件格式 png|jpg|webp|gif  4M
+  if (rawFile.type == 'image/png' || rawFile.type == 'image/jpeg' || rawFile.type == 'image/gif' || rawFile.type == 'image/webp') {
+    if (rawFile.size / 1024 / 1024 < 4) return true
+    else {
+      ElMessage({ type: 'error', message: '上传文件的大小应小于4M' })
+    }
+  } else {
+    ElMessage({ type: 'error', message: '上传图片的格式必须是png,jpg,webp,gif' })
+    return false
+  }
+}
+//图片上传成功的钩子
+const handleAvatarSuccess: UploadProps['onSuccess'] = (response) => {
+  //response 这次上传图片post请求服务器返回的数据
+  //uploadFile
+  //收集上传图片的地址,添加一个新的品牌带给服务器
+  trademarkParams.logoUrl = response.data
 }
 </script>
 <style>
