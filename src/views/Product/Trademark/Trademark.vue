@@ -11,11 +11,25 @@
           width:设置列宽度
           align:设置这一列的对齐方式,默认left
      -->
-    <el-table style="margin: 10px 0" border>
-      <el-table-column label="序号" width="80px" align="center"></el-table-column>
-      <el-table-column label="品牌名称"></el-table-column>
-      <el-table-column label="品牌logo"></el-table-column>
-      <el-table-column label="操作"></el-table-column>
+    <el-table style="margin: 10px 0" border :data="trademarkArr">
+      <el-table-column label="序号" width="80px" align="center" type="index"></el-table-column>
+      <!-- table-column:默认展示数据用的是div -->
+      <el-table-column label="品牌名称">
+        <template #default="{ row }">
+          <pre style="color: brown">{{ row.tmName }}</pre>
+        </template>
+      </el-table-column>
+      <el-table-column label="品牌logo">
+        <template #default="{ row }">
+          <img :src="row.logoUrl" style="width: 100px; height: 100px" />
+        </template>
+      </el-table-column>
+      <el-table-column label="操作">
+        <template #default>
+          <el-button type="primary" size="small" icon="edit"></el-button>
+          <el-button type="primary" size="small" icon="delete"></el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <!-- 
       分页器组件 pagination :
@@ -32,17 +46,32 @@
       :page-sizes="[3, 5, 7, 9]"
       :background="true"
       layout="prev, pager, next, jumper,->,sizes,total"
-      :total="400"
+      :total="total"
     />
   </el-card>
 </template>
 <script setup lang="ts">
 //引入组合式API函数ref
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 //当前页码
 let pageNo = ref<number>(1)
+import { reqHasTrademark } from '@/api/product/trademark'
 //每一页展示多少条数据
 let limit = ref<number>(3)
-//
+//存储已有品牌的数据的总数
+let total = ref<number>(0)
+//存储已有品牌的数据
+let trademarkArr = ref<any>([])
+//获取已有品牌的接口封装为一个函数,再任何的情况下获取数据,调用此函数即可
+const getHasTrademark = async () => {
+  const res = await reqHasTrademark(pageNo.value, limit.value)
+  // console.log('res: ', res.data)
+  if (res.code == 200) {
+    //存储已有品牌的数量
+    total.value = res.data.total
+    trademarkArr.value = res.data.records
+  }
+}
+onMounted(() => getHasTrademark())
 </script>
 <style scoped></style>
