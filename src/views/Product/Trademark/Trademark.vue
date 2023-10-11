@@ -58,11 +58,11 @@
     title:对话框左上角的标题
    -->
     <el-dialog v-model="dialogFormVisible" :title="trademarkParams.id ? '修改品牌' : '添加品牌'">
-      <el-form style="width: 80%">
-        <el-form-item label="品牌名称" required label-width="80px">
+      <el-form style="width: 80%" :model="trademarkParams" :rules="rules" ref="formRef">
+        <el-form-item label="品牌名称" required label-width="100px" prop="tmName">
           <el-input placeholder="请您输入品牌名称" v-model="trademarkParams.tmName"></el-input>
         </el-form-item>
-        <el-form-item label="品牌LOGO" label-width="80px">
+        <el-form-item label="品牌LOGO" label-width="100px" prop="logoUrl">
           <!-- 
           upload组件相应属性
             action:	图片上传路径/api,代理服务器不发送此次post请求
@@ -89,7 +89,7 @@
 </template>
 <script setup lang="ts">
 //引入组合式API函数ref
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { reqHasTrademark, reqAddOrUpdateTrademark } from '@/api/product/trademark'
 import type { Records, TrademarkResponseData, Trademark } from '@/api/product/trademark/type'
 import { ElMessage, UploadProps } from 'element-plus'
@@ -106,6 +106,8 @@ let trademarkParams = reactive<Trademark>({
   logoUrl: '',
   tmName: '',
 })
+//获取el-form组件实例
+const formRef = ref()
 //获取已有品牌的接口封装为一个函数,再任何的情况下获取数据,调用此函数即可
 const getHasTrademark = async (page = 1) => {
   pageNo.value = page
@@ -144,10 +146,19 @@ const addTrademark = () => {
   trademarkParams.id = undefined
   trademarkParams.tmName = ''
   trademarkParams.logoUrl = ''
+  //清除之前的表单校验结果
+  //因为第一次点击添加按钮时,el-form组件还没有创建，所以不能调用clearValidate方法
+  //第二次点击点击添加时,el-form其实只是隐藏,ref可以获取到el-form组件实例
+  //第①种写法: TS的?写法
+  // formRef.value?.clearValidate()
+  //第②种写法
+  nextTick(() => formRef.value.clearValidate())
 }
 //修改品牌按钮的回调
 //row作用域插槽回传的那一行的数据
 const updateTrademark = (row: Trademark) => {
+  //清除之前的表单校验结果
+  nextTick(() => formRef.value.clearValidate())
   // console.log('row: ', row)
   //对话框显示
   dialogFormVisible.value = true
@@ -164,6 +175,10 @@ const cancel = () => {
   dialogFormVisible.value = false
 }
 const confirm = async () => {
+  //再发请求之前要对于整个表单进行校验
+  //调用这个方法进行全部的表单项校验, 如果校验全部通过, 再执行后面的语句
+  await formRef.value.validate()
+
   let res: any = await reqAddOrUpdateTrademark(trademarkParams)
   // console.log('res: ', res)
   //添加或修改已有品牌
@@ -202,6 +217,32 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (response) => {
   //uploadFile
   //收集上传图片的地址,添加一个新的品牌带给服务器
   trademarkParams.logoUrl = response.data
+  //图片上传成功,清除掉对应图片校验结果
+  formRef.value.clearValidate('logoUrl')
+}
+
+//品牌自定义校验规则的方法
+const validateTmName = (_rule: any, value: any, callback: any) => {
+  //是当表单元素触发blur的时候会触发此方法
+  // console.log('rule: ', rule)
+
+  //自定义校验规则
+  if (value.trim().length >= 2) callback()
+  //校验未通过返回的错误的提示信息
+  else callback(new Error('品牌名称字符长度大于等于两位'))
+}
+//品牌logo图片的自定义校验规则方法
+const validateLogoUrl = (_rule: any, value: any, callback: any) => {
+  //如果图片上传了,那么value(图片的地址)即有值
+  if (value) callback()
+  else callback(new Error('logo的图片务必上传'))
+}
+//表单校验规则对象
+const rules = {
+  //required:这个字段务必要校验,表单项前面出现一个五角星
+  //trigger:触发校验规则的时机 blur:失去焦点时  change:输入时
+  tmName: [{ required: true, trigger: 'blur', validator: validateTmName }],
+  logoUrl: [{ required: true, validator: validateLogoUrl }],
 }
 </script>
 <style>
