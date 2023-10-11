@@ -9,7 +9,7 @@ enum API {
   //新增品牌的接口
   ADDTRADEMARK_URL = '/admin/product/baseTrademark/save',
   //修改已有品牌
-  UPDATETRADEMARK_URL = '/admin/product/addBaseTrademark/',
+  UPDATETRADEMARK_URL = '/admin/product/baseTrademark/update',
 }
 
 //获取已有品牌的接口方法
