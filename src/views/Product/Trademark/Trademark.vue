@@ -88,7 +88,7 @@
 <script setup lang="ts">
 //引入组合式API函数ref
 import { onMounted, reactive, ref } from 'vue'
-import { reqHasTrademark } from '@/api/product/trademark'
+import { reqHasTrademark, reqAddOrUpdateTrademark } from '@/api/product/trademark'
 import type { Records, TrademarkResponseData, Trademark } from '@/api/product/trademark/type'
 import { ElMessage, UploadProps } from 'element-plus'
 //当前页码
@@ -138,6 +138,9 @@ const sizeChange = () => {
 const addTrademark = () => {
   //对话框显示
   dialogFormVisible.value = true
+  //清空收集数据
+  trademarkParams.tmName = ''
+  trademarkParams.logoUrl = ''
 }
 //修改品牌按钮的回调
 const updateTrademark = () => {
@@ -149,8 +152,22 @@ const cancel = () => {
   //对话框取消
   dialogFormVisible.value = false
 }
-const confirm = () => {
-  dialogFormVisible.value = false
+const confirm = async () => {
+  let res: any = await reqAddOrUpdateTrademark(trademarkParams)
+  console.log('res: ', res)
+  //添加品牌成功
+  if (res.code == 200) {
+    //关闭对话框
+    dialogFormVisible.value = false
+    //弹出提示信息
+    ElMessage({ type: 'success', message: '添加品牌成功' })
+    //再次发请求获取已有全部品牌数据
+    getHasTrademark()
+  } else {
+    //添加品牌失败
+    ElMessage({ type: 'error', message: '添加品牌失败' })
+    dialogFormVisible.value = false
+  }
 }
 
 //上传图片组件 -> 上传图片之前触发的钩子函数
@@ -187,6 +204,10 @@ const handleAvatarSuccess: UploadProps['onSuccess'] = (response) => {
 
 .avatar-uploader .el-upload:hover {
   border-color: var(--el-color-primary);
+}
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
 }
 
 .el-icon.avatar-uploader-icon {
