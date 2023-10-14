@@ -41,7 +41,7 @@ const useCategoryStore = defineStore('Category', {
     //获取三级分类的方法
     async getC3() {
       const res: CategoryResponseData = await reqC3(this.c2Id)
-      console.log('res: ', res)
+      // console.log('res: ', res)
       if (res.code == 200) {
         this.c3Arr = res.data
       }
