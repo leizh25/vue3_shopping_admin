@@ -14,9 +14,9 @@
             </template>
           </el-table-column>
           <el-table-column label="操作" width="120px">
-            <template #default>
+            <template #default="{ row }">
               <!-- row:已有的属性对象 -->
-              <el-button type="primary" size="small" icon="edit" @click="updateAttr"></el-button>
+              <el-button type="primary" size="small" icon="edit" @click="updateAttr(row)"></el-button>
               <el-button type="danger" size="small" icon="delete"></el-button>
             </template>
           </el-table-column>
@@ -48,7 +48,7 @@
             </template>
           </el-table-column>
           <el-table-column label="属性值操作">
-            <template #default="{ row, $index }">
+            <template #default="{ $index }">
               <el-button type="danger" size="small" icon="delete" @click="attrParams.attrValueList.splice($index, 1)"></el-button>
             </template>
           </el-table-column>
@@ -119,8 +119,12 @@ const addAttr = () => {
   scene.value = 1
 }
 //table表格中修改已有属性按钮的回调
-const updateAttr = () => {
+const updateAttr = (row: Attr) => {
   scene.value = 1
+  //将已有的属性对象赋值给attrParams对象
+  // console.log(row)
+  //ES6 -> Object.assign()进行对象合并(浅拷贝)    JSON.parse(JSON.stringify(row)) 深拷贝
+  Object.assign(attrParams, JSON.parse(JSON.stringify(row)))
 }
 
 //取消按钮的回调
