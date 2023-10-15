@@ -17,7 +17,11 @@
             <template #default="{ row }">
               <!-- row:已有的属性对象 -->
               <el-button type="primary" size="small" icon="edit" @click="updateAttr(row)"></el-button>
-              <el-button type="danger" size="small" icon="delete"></el-button>
+              <el-popconfirm :title="`你确定删除${row.attrName}吗`" @confirm="deleteAttr(row.id)">
+                <template #reference>
+                  <el-button type="danger" size="small" icon="delete"></el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -61,9 +65,9 @@
 </template>
 <script setup lang="ts">
 //组合式API函数watch
-import { watch, ref, reactive, nextTick } from 'vue'
+import { watch, ref, reactive, nextTick, onBeforeUnmount } from 'vue'
 //引入获取已有属性与属性值的接口
-import { reqAddOrUpdateAttr, reqAttr } from '@/api/product/attr'
+import { reqAddOrUpdateAttr, reqAttr, reqDeleteAttr } from '@/api/product/attr'
 //获取分类的仓库
 import useCategoryStore from '@/store/modules/category'
 //引入类型
@@ -192,5 +196,22 @@ const toEdit = (row: AttrValue, $index: number) => {
     inputArr.value[$index].focus()
   })
 }
+//删除某一个已有属性的回调
+const deleteAttr = async (attrId: number) => {
+  //发送相应的删除属性的请求
+  const res: any = await reqDeleteAttr(attrId)
+  if (res.code == 200) {
+    ElMessage.success('删除成功')
+    getAttr()
+  } else {
+    ElMessage.error('删除失败')
+  }
+}
+//路由组件销毁的时候,把仓库分类相关的数据清空
+onBeforeUnmount(() => {
+  // console.log(categoryStore)
+  //清空category仓库的数据
+  categoryStore.$reset()
+})
 </script>
 <style scoped></style>
