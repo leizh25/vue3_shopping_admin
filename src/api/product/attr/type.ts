@@ -21,6 +21,7 @@ export interface AttrValue {
   id?: number
   valueName: string
   attrId?: number
+  flag?: boolean
 }
 //存储每一个属性值的数据类型
 export type AttrValueList = AttrValue[]
@@ -33,7 +34,7 @@ export interface Attr {
   attrValueList: AttrValueList
 }
 //存储每一个属性对象的数组TS类型
-export type AttrList = Attrp[]
+export type AttrList = Attr[]
 //属性接口返回的数据类型
 export interface AttrResponseData extends ResponseData {
   data: Attr[]

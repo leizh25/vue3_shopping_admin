@@ -35,13 +35,14 @@
           <el-table-column width="80" type="index" label="序号" align="center"></el-table-column>
           <el-table-column label="属性值名称">
             <!-- row即为当前的属性值对象 -->
-            <template #default="{ row }">
-              <el-input placeholder="请你输入属性值名称" v-model="row.valueName"></el-input>
+            <template #default="{ row, $index }">
+              <el-input v-if="row.flag" @blur="toLook(row, $index)" size="small" placeholder="请你输入属性值名称" v-model="row.valueName"></el-input>
+              <div v-else @click="toEdit(row)">{{ row.valueName }}</div>
             </template>
           </el-table-column>
           <el-table-column label="属性值操作"></el-table-column>
         </el-table>
-        <el-button type="primary" :disabled="!attrParams.attrName" @click="save">保存</el-button>
+        <el-button type="primary" @click="save" :disabled="!attrParams.attrValueList.length">保存</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
       </div>
     </el-card>
@@ -55,7 +56,7 @@ import { reqAddOrUpdateAttr, reqAttr } from '@/api/product/attr'
 //获取分类的仓库
 import useCategoryStore from '@/store/modules/category'
 //引入类型
-import type { AttrResponseData, Attr } from '@/api/product/attr/type'
+import type { AttrResponseData, Attr, AttrValue } from '@/api/product/attr/type'
 import { ElMessage } from 'element-plus'
 //获取仓库对象
 const categoryStore = useCategoryStore()
@@ -118,6 +119,7 @@ const addAttrValue = () => {
   //点击添加属性值按钮的时候,向数组添加一个属性值对象
   attrParams.attrValueList.push({
     valueName: '',
+    flag: true, //控制每一个属性值的编辑模式的切换
   })
 }
 //保存按钮的回调
@@ -135,6 +137,36 @@ const save = async () => {
   } else {
     ElMessage.error(attrParams.id ? '修改失败' : '添加失败')
   }
+}
+//属性值表单元素失去焦点的事件回调
+const toLook = (row: AttrValue, $index: number) => {
+  //非法情况的判断
+  if (row.valueName.trim() == '') {
+    ElMessage.error('属性值不能为空')
+    //删除对应属性值为空的元素
+    attrParams.attrValueList.splice($index, 1)
+    return
+  }
+  //非法情况二:
+  let repeat = attrParams.attrValueList.find((item) => {
+    //切记把当前失去焦点属性值对象从当前数组返回出去判断
+    //item != row 就是排除当前行,和别的行进行比较
+    if (item != row) {
+      return item.valueName === row.valueName
+    }
+  })
+  if (repeat) {
+    //删除当前重复的属性值
+    attrParams.attrValueList.splice($index, 1)
+    //提示信息
+    ElMessage.error('属性值不能重复')
+    return
+  }
+  //相应的属性值对象flag:变为false,展示div
+  row.flag = false
+}
+const toEdit = (row: AttrValue) => {
+  row.flag = true
 }
 </script>
 <style scoped></style>
