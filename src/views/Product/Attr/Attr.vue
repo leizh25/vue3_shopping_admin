@@ -36,11 +36,22 @@
           <el-table-column label="属性值名称">
             <!-- row即为当前的属性值对象 -->
             <template #default="{ row, $index }">
-              <el-input v-if="row.flag" @blur="toLook(row, $index)" size="small" placeholder="请你输入属性值名称" v-model="row.valueName"></el-input>
-              <div v-else @click="toEdit(row)">{{ row.valueName }}</div>
+              <el-input
+                :ref="(vc: any) => (inputArr[$index] = vc)"
+                v-if="row.flag"
+                @blur="toLook(row, $index)"
+                size="small"
+                placeholder="请你输入属性值名称"
+                v-model="row.valueName"
+              ></el-input>
+              <div v-else @click="toEdit(row, $index)">{{ row.valueName }}</div>
             </template>
           </el-table-column>
-          <el-table-column label="属性值操作"></el-table-column>
+          <el-table-column label="属性值操作">
+            <template #default="{ row, $index }">
+              <el-button type="danger" size="small" icon="delete" @click="attrParams.attrValueList.splice($index, 1)"></el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <el-button type="primary" @click="save" :disabled="!attrParams.attrValueList.length">保存</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
@@ -50,7 +61,7 @@
 </template>
 <script setup lang="ts">
 //组合式API函数watch
-import { watch, ref, reactive } from 'vue'
+import { watch, ref, reactive, nextTick } from 'vue'
 //引入获取已有属性与属性值的接口
 import { reqAddOrUpdateAttr, reqAttr } from '@/api/product/attr'
 //获取分类的仓库
@@ -71,6 +82,8 @@ let attrParams = reactive<Attr>({
   categoryId: '', //对应的三级分类的ID
   categoryLevel: 3, //对应的几级分类
 })
+//准备一个数组:将来存储对应的组件实例el-input
+let inputArr = ref<any>([])
 //监听仓库三级分类ID变化
 watch(
   () => categoryStore.c3Id,
@@ -121,6 +134,8 @@ const addAttrValue = () => {
     valueName: '',
     flag: true, //控制每一个属性值的编辑模式的切换
   })
+  //获取最后的el-input,让他聚焦
+  nextTick(() => inputArr.value[attrParams.attrValueList.length - 1].focus())
 }
 //保存按钮的回调
 const save = async () => {
@@ -165,8 +180,13 @@ const toLook = (row: AttrValue, $index: number) => {
   //相应的属性值对象flag:变为false,展示div
   row.flag = false
 }
-const toEdit = (row: AttrValue) => {
+const toEdit = (row: AttrValue, $index: number) => {
+  //对应的属性值对象flag:变为true,展示input
   row.flag = true
+  //nextTick:响应式数据发生变化,获取更新后的DOM或组件实例
+  nextTick(() => {
+    inputArr.value[$index].focus()
+  })
 }
 </script>
 <style scoped></style>
