@@ -28,3 +28,59 @@ export interface HasSpuResponseData extends ResponseData {
     pages: number
   }
 }
+
+//所有品牌数据的TS类型
+export interface Trademark {
+  id: number
+  tmName: string
+  logoUrl: string
+}
+//品牌接口返回的数据TS类型
+export interface AllTrademark extends ResponseData {
+  data: Trademark[]
+}
+//商品图片TS类型
+export interface SpuImg {
+  id: number
+  spuId: number
+  imgName: string
+  imgUrl: string
+}
+//已有的SPU照片墙数据的类型
+export interface SpuHasImg extends ResponseData {
+  data: SpuImg[]
+}
+
+//已有的销售属性值对象TS类型
+export interface SaleAttrValue {
+  id?: number
+  spuId: number
+  baseSaleAttrId: number
+  saleAttrValueName: string
+  saleAttrName: string
+  isChecked: null
+}
+//存储已有的销售属性值数组类型
+export type SpuSaleAttrValueList = SaleAttrValue[]
+//销售属性对象TS类型
+export interface SaleAttr {
+  id: number
+  spuId: number
+  baseSaleAttrId: number
+  saleAttrName: string
+  spuSaleAttrValueList: SpuSaleAttrValueList
+}
+//SPU已有销售属性接口返回的数据TS类型
+export interface SaleAttrResponseData extends ResponseData {
+  data: SaleAttr[]
+}
+
+//已有的全部SPU的返回数据TS类型
+export interface HasSaleAttr {
+  id: number
+  name: string
+}
+//
+export interface HasSaleAttrResponseData extends ResponseData {
+  data: HasSaleAttr[]
+}
