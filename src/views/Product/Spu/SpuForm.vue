@@ -43,11 +43,23 @@
         </el-select>
         <el-button icon="plus" type="primary" style="margin-left: 10px">添加属性值</el-button>
         <!-- 展示销售属性与属性值 -->
-        <el-table border style="margin: 10px 0">
+        <el-table border style="margin: 10px 0" :data="saleAttr">
           <el-table-column type="index" label="序号" align="center" width="80px"></el-table-column>
-          <el-table-column label="属性名字" width="120px"></el-table-column>
-          <el-table-column label="属性值"></el-table-column>
-          <el-table-column label="操作" width="120px"></el-table-column>
+          <el-table-column label="属性名字" width="120px" prop="saleAttrName"></el-table-column>
+          <el-table-column label="属性值">
+            <!-- row为当前SPU已有的销售属性对象 -->
+            <template #default="{ row }">
+              <el-tag v-for="item in row.spuSaleAttrValueList" :key="item.id" class="mx-1" closable style="margin: 0 5px">
+                {{ item.saleAttrValueName }}
+              </el-tag>
+              <el-button type="primary" size="small" icon="plus"></el-button>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="120px">
+            <template #default="{ $index }">
+              <el-button type="danger" icon="delete" size="small" @click="saleAttr.splice($index, 1)"></el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-form-item>
       <el-form-item>
