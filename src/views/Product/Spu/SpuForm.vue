@@ -35,13 +35,12 @@
       </el-form-item>
       <el-form-item label="spu销售属性">
         <!-- 展示销售属性的下拉菜单 -->
-        <el-select>
-          <el-option label="华为"></el-option>
-          <el-option label="小米"></el-option>
-          <el-option label="OPPO"></el-option>
-          <el-option label="vivo"></el-option>
+        <el-select v-model="saleAttrIdAndValueName" :placeholder="unSelectSaleAttr.length ? `还未选择${unSelectSaleAttr.length}个` : `无`">
+          <el-option v-for="item in unSelectSaleAttr" :key="item.id" :label="item.name" :value="`${item.id}:${item.name}`"></el-option>
         </el-select>
-        <el-button icon="plus" type="primary" style="margin-left: 10px">添加属性值</el-button>
+        <el-button icon="plus" type="primary" style="margin-left: 10px" :disabled="saleAttrIdAndValueName ? false : true" @click="addSaleAttr">
+          添加属性
+        </el-button>
         <!-- 展示销售属性与属性值 -->
         <el-table border style="margin: 10px 0" :data="saleAttr">
           <el-table-column type="index" label="序号" align="center" width="80px"></el-table-column>
@@ -83,7 +82,7 @@ import {
 } from '@/api/product/spu/type'
 import { Trademark } from '@/api/product/trademark/type'
 import { ElMessage } from 'element-plus'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const $emits = defineEmits(['changeScene'])
 
@@ -112,6 +111,8 @@ let spuParams = ref<SpuData>({
   spuImageList: [],
   spuSaleAttrList: [],
 })
+//将来收集还未选择的销售属性的ID与属性值的名字
+let saleAttrIdAndValueName = ref<string>('')
 //供父组件调用的初始化方法
 const initHasSpuData = async (spu: SpuData) => {
   //存储已有的SPU对象
@@ -169,6 +170,31 @@ const handleBeforeUpload = (file: any) => {
     ElMessage.error('上传文件务必是png,jpg,gif,webp')
     return false
   }
+}
+// 计算当前SPU还未拥有的销售属性
+let unSelectSaleAttr = computed(() => {
+  //全部销售属性:颜色,版本,尺码
+  //已有的销售属性:颜色,版本
+  let unSelectAttr = AllSaleAttr.value.filter((item) => {
+    return saleAttr.value.every((item1) => {
+      return item.name != item1.saleAttrName
+    })
+  })
+  return unSelectAttr
+})
+//添加销售属性的方法
+const addSaleAttr = () => {
+  const [baseSaleAttrId, saleAttrName] = saleAttrIdAndValueName.value.split(':')
+  //准备一个新的销售属性对象,将来带给服务器
+  let newSaleAttr: SaleAttr = {
+    baseSaleAttrId,
+    saleAttrName,
+    spuSaleAttrValueList: [],
+  }
+  //追加到数组当中
+  saleAttr.value.push(newSaleAttr)
+  //清空收集的数据
+  saleAttrIdAndValueName.value = ''
 }
 //对外暴露
 defineExpose({ initHasSpuData })
