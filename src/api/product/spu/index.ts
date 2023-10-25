@@ -14,6 +14,10 @@ enum API {
   SPUHASSALEATTR_URL = '/admin/product/spuSaleAttrList/',
   //获取整个项目全部的销售属性[颜色,版本,尺码]
   ALLSALEATTR_URL = '/admin/product/baseSaleAttrList',
+  //追加一个新的SPU
+  ADDSPU_URL = '/admin/product/saveSpuInfo',
+  //更新一个已有的SPU
+  UPDATESPU_URL = '/admin/product/updateSpuInfo',
 }
 
 //获取某一个三级分类下已有的SPU数据
@@ -32,3 +36,17 @@ export const reqSpuHasSaleAttr = (spuId: number) => request.get<any, SaleAttrRes
 
 //获取全部的销售属性
 export const reqAllSaleAttr = () => request.get<any, HasSaleAttrResponseData>(API.ALLSALEATTR_URL)
+
+/**
+ * 添加新的SPU的接口
+ * data: 新增或者已有的SPU对象
+ */
+export const reqAddOrUpdateSpu = (data: SpuData) => {
+  //如果SPU对象拥有ID,更新已有的SPU
+  if (data.id) {
+    return request.post<any, any>(API.UPDATESPU_URL, data)
+  } else {
+    return request.post<any, any>(API.ADDSPU_URL, data)
+  }
+}
+//更新已有SPU的接口
