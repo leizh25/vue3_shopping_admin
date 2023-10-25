@@ -13,12 +13,18 @@
         <el-input type="textarea" placeholder="请输入Spu描述" v-model="spuParams.description"></el-input>
       </el-form-item>
       <el-form-item label="spu照片">
+        <!-- 
+          v-model:file-list 用于展示默认图片
+          action: 上传图片的接口地址
+          list-type: 文件列表类型
+         -->
         <el-upload
-          v-model:file-list="fileList"
-          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+          v-model:file-list="imgList"
+          action="/api/admin/product/fileUpload"
           list-type="picture-card"
           :on-preview="handlePictureCardPreview"
           :on-remove="handleRemove"
+          :before-upload="handleBeforeUpload"
         >
           <el-icon><Plus /></el-icon>
         </el-upload>
@@ -64,6 +70,7 @@ import {
   SpuImg,
 } from '@/api/product/spu/type'
 import { Trademark } from '@/api/product/trademark/type'
+import { ElMessage } from 'element-plus'
 import { ref } from 'vue'
 
 const $emits = defineEmits(['changeScene'])
@@ -80,6 +87,10 @@ let imgList = ref<SpuImg[]>([])
 let saleAttr = ref<SaleAttr[]>([])
 //全部的销售属性
 let AllSaleAttr = ref<HasSaleAttr[]>([])
+//控制对话框的显示与隐藏
+let dialogVisible = ref<boolean>(false)
+//存储预览图片的地址
+let dialogImageUrl = ref<string>('')
 //存储已有的SPU对象,将来在模板中展示
 let spuParams = ref<SpuData>({
   category3Id: '', //三级分类ID
@@ -109,11 +120,43 @@ const initHasSpuData = async (spu: SpuData) => {
   //存储全部品牌的数据
   allTrademark.value = res1.data
   //SPU对应商品图片
-  imgList.value = res2.data
+  imgList.value = res2.data.map((item) => {
+    return {
+      name: item.imgName,
+      url: item.imgUrl,
+    }
+  })
   //存储已有的SPU的销售属性
   saleAttr.value = res3.data
   //存储全部销售属性
   AllSaleAttr.value = res4.data
+}
+//照片墙点击预览按钮的回调
+const handlePictureCardPreview = (file: any) => {
+  console.log('file: ', file)
+  //显示对话框
+  dialogVisible.value = true
+  dialogImageUrl.value = file.url
+}
+//照片墙删除文件的回调
+const handleRemove = () => {
+  console.log(123)
+}
+//照片墙上传成功之前的钩子
+const handleBeforeUpload = (file: any) => {
+  //文件类型
+  const fileTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp']
+  if (fileTypes.indexOf(file.type) >= 0) {
+    // 限制文件大小
+    if (file.size / 1024 / 1024 < 3) {
+      return true
+    } else {
+      ElMessage.error('上传文件必须小于3M')
+    }
+  } else {
+    ElMessage.error('上传文件务必是png,jpg,gif,webp')
+    return false
+  }
 }
 //对外暴露
 defineExpose({ initHasSpuData })

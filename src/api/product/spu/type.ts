@@ -43,8 +43,9 @@ export interface AllTrademark extends ResponseData {
 export interface SpuImg {
   id?: number
   spuId?: number
-  imgName: string
-  imgUrl: string
+  imgName?: string
+  imgUrl?: string
+  name?: string
 }
 //已有的SPU照片墙数据的类型
 export interface SpuHasImg extends ResponseData {
