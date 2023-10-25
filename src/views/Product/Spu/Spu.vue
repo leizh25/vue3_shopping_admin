@@ -12,9 +12,9 @@
           <el-table-column label="SPU名称" prop="spuName"></el-table-column>
           <el-table-column label="SPU描述" prop="description" show-overflow-tooltip></el-table-column>
           <el-table-column label="操作">
-            <template #default>
+            <template #default="{ row }">
               <el-button type="primary" size="small" icon="plus" title="添加SKU"></el-button>
-              <el-button type="warning" size="small" icon="edit" title="修改SKU" @click="updateSpu"></el-button>
+              <el-button type="warning" size="small" icon="edit" title="修改SKU" @click="updateSpu(row)"></el-button>
               <el-button type="info" size="small" icon="view" title="查看SKU列标"></el-button>
               <el-button type="danger" size="small" icon="delete" title="删除SPU"></el-button>
             </template>
@@ -33,7 +33,7 @@
         />
       </div>
       <!-- 添加以及修改Spu子组件 -->
-      <SpuForm v-show="scene == 1" @changeScene="changeScene"></SpuForm>
+      <SpuForm v-show="scene == 1" @changeScene="changeScene" ref="SpuFormVC"></SpuForm>
       <!-- 添加Sku子组件 -->
       <SkuForm v-show="scene == 2"></SkuForm>
     </el-card>
@@ -44,7 +44,7 @@ import { ref, watch } from 'vue'
 //引入分类仓库
 import useCategoryStore from '@/store/modules/category'
 import { reqHasSpu } from '@/api/product/spu'
-import { HasSpuResponseData, Records } from '@/api/product/spu/type'
+import { HasSpuResponseData, Records, SpuData } from '@/api/product/spu/type'
 //引入相应的子组件SpuForm
 import SpuForm from './SpuForm.vue'
 import SkuForm from './SkuForm.vue'
@@ -59,6 +59,8 @@ let pageSize = ref<number>(3)
 let recoreds = ref<Records>([])
 //存储已有SPU总个数
 let total = ref<number>(0)
+//获取子组件实例SpuForm
+const SpuFormVC = ref<any>()
 //监听三级分类ID的变化
 watch(
   () => categoryStore.c3Id,
@@ -93,9 +95,12 @@ const changeScene = (num: number) => {
   scene.value = num
 }
 //修改已有Spu按钮的回调
-const updateSpu = () => {
+const updateSpu = (row: SpuData) => {
   //切换为场景1:添加与修改已有SPU结构 -> SpuForm
   scene.value = 1
+  // console.log(SpuFormVC.value)
+  //调用子组件实例方法去获取完整的已有的SPU的数据
+  SpuFormVC.value.initHasSpuData(row)
 }
 </script>
 <style scoped></style>
