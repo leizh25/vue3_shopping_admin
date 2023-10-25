@@ -56,7 +56,7 @@ export interface SpuHasImg extends ResponseData {
 export interface SaleAttrValue {
   id?: number
   spuId?: number
-  baseSaleAttrId: number
+  baseSaleAttrId: number | string
   saleAttrValueName: string
   saleAttrName?: string
   isChecked?: null
@@ -70,6 +70,8 @@ export interface SaleAttr {
   baseSaleAttrId: number | string
   saleAttrName: string
   spuSaleAttrValueList: SpuSaleAttrValueList
+  flag?: boolean
+  saleAttrValue?: string
 }
 //SPU已有销售属性接口返回的数据TS类型
 export interface SaleAttrResponseData extends ResponseData {
