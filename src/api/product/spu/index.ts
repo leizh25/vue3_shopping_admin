@@ -1,7 +1,7 @@
 //SPU 管理模块地址
 //引入Axios
 import request from '@/utils/request'
-import { AllTrademark, HasSaleAttrResponseData, HasSpuResponseData, SaleAttrResponseData, SpuHasImg } from './type'
+import { AllTrademark, HasSaleAttrResponseData, HasSpuResponseData, SaleAttrResponseData, SpuData, SpuHasImg } from './type'
 
 enum API {
   //获取已有的SPU数据
