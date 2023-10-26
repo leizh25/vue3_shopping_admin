@@ -13,8 +13,8 @@
           <el-table-column label="SPU描述" prop="description" show-overflow-tooltip></el-table-column>
           <el-table-column label="操作">
             <template #default="{ row }">
-              <el-button type="primary" size="small" icon="plus" title="添加SKU"></el-button>
-              <el-button type="warning" size="small" icon="edit" title="修改SKU" @click="updateSpu(row)"></el-button>
+              <el-button type="primary" size="small" icon="plus" title="添加SKU" @click="addSku"></el-button>
+              <el-button type="warning" size="small" icon="edit" title="修改SPU" @click="updateSpu(row)"></el-button>
               <el-button type="info" size="small" icon="view" title="查看SKU列标"></el-button>
               <el-button type="danger" size="small" icon="delete" title="删除SPU"></el-button>
             </template>
@@ -35,7 +35,7 @@
       <!-- 添加以及修改Spu子组件 -->
       <SpuForm v-show="scene == 1" @changeScene="changeScene" ref="SpuFormVC"></SpuForm>
       <!-- 添加Sku子组件 -->
-      <SkuForm v-show="scene == 2"></SkuForm>
+      <SkuForm v-show="scene == 2" @changeScene="changeScene"></SkuForm>
     </el-card>
   </div>
 </template>
@@ -111,6 +111,11 @@ const updateSpu = (row: SpuData) => {
   // console.log(SpuFormVC.value)
   //调用子组件实例方法去获取完整的已有的SPU的数据
   SpuFormVC.value.initHasSpuData(row)
+}
+//添加Sku按钮的回调
+const addSku = () => {
+  //切换场景2
+  scene.value = 2
 }
 </script>
 <style scoped></style>
