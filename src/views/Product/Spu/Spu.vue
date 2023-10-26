@@ -88,13 +88,21 @@ const changeSize = () => {
 const addSpu = () => {
   //切换为场景1:添加与修改已有SPU结构 -> SpuForm
   scene.value = 1
+  //调用子组件方法初始化数据
+  SpuFormVC.value.initAddSpu(categoryStore.c3Id)
 }
 //子组件SpuForm绑定的自定义事件:目前是让子组件通知父组件切换场景为0
-const changeScene = (num: number) => {
+const changeScene = (obj: any) => {
   //子组件SpuForm点击取消变为场景0:展示已有Spu
-  scene.value = num
-  //重新发生请求获取数据'
-  getHasSpu()
+  scene.value = obj.flag
+  //重新发生请求获取数据
+  if (obj.params == 'update') {
+    // 更新: 留在当前页
+    getHasSpu(pageNo.value)
+  } else {
+    //添加: 回到第一页
+    getHasSpu()
+  }
 }
 //修改已有Spu按钮的回调
 const updateSpu = (row: SpuData) => {
