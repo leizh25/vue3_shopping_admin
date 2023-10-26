@@ -77,14 +77,14 @@
         </el-table>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="save" :disabled="saleAttr.length <= 0">保存</el-button>
         <el-button type="primary" @click="cancel">取消</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script setup lang="ts">
-import { reqAllSaleAttr, reqAllTrademark, reqSpuHasSaleAttr, reqSpuImageList } from '@/api/product/spu'
+import { reqAddOrUpdateSpu, reqAllSaleAttr, reqAllTrademark, reqSpuHasSaleAttr, reqSpuImageList } from '@/api/product/spu'
 import {
   AllTrademark,
   HasSaleAttr,
@@ -244,6 +244,33 @@ const toLook = (row: SaleAttr) => {
   row.spuSaleAttrValueList.push(newSaleAttrValue)
   //切换为查看模式
   row.flag = false
+}
+//保存按钮的回调
+const save = async () => {
+  //整理参数
+  //1.照片墙的数据
+  spuParams.value.spuImageList = imgList.value.map((item: any) => {
+    return {
+      imgName: item.name, //图片名字
+      imgUrl: (item.response && item.response.data) || item.url, //图片地址
+    }
+  })
+  // console.log('spuParams.value.spuImageList: ', spuParams.value.spuImageList)
+  //整理销售属性数据
+  spuParams.value.spuSaleAttrList = saleAttr.value
+  // console.log('spuParams.value.spuSaleAttrList: ', spuParams.value.spuSaleAttrList)
+  //发请求 添加SPU | 更新SPU
+  const res = await reqAddOrUpdateSpu(spuParams.value)
+  // console.log('res: ', res)
+  if (res.code == 200) {
+    ElMessage.success(spuParams.value.id ? '更新成功' : '修改成功')
+    //通知切换场景为0
+    $emits('changeScene', 0)
+  } else {
+    ElMessage.error(spuParams.value.id ? '更新失败' : '修改失败')
+  }
+  //成功
+  //失败
 }
 //对外暴露
 defineExpose({ initHasSpuData })
