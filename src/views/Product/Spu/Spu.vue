@@ -16,7 +16,11 @@
               <el-button type="primary" size="small" icon="plus" title="添加SKU" @click="addSku(row)"></el-button>
               <el-button type="warning" size="small" icon="edit" title="修改SPU" @click="updateSpu(row)"></el-button>
               <el-button type="info" size="small" icon="view" title="查看SKU列标" @click="findSku(row)"></el-button>
-              <el-button type="danger" size="small" icon="delete" title="删除SPU"></el-button>
+              <el-popconfirm :title="`你确定删除${row.spuName}吗?`" width="200px" @confirm="deleteSpu(row)">
+                <template #reference>
+                  <el-button type="danger" size="small" icon="delete" title="删除SPU"></el-button>
+                </template>
+              </el-popconfirm>
             </template>
           </el-table-column>
         </el-table>
@@ -53,14 +57,15 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 //引入分类仓库
 import useCategoryStore from '@/store/modules/category'
-import { reqHasSpu, reqSkuList } from '@/api/product/spu'
+import { reqHasSpu, reqSkuList, reqRemoveSpu } from '@/api/product/spu'
 import { HasSpuResponseData, Records, SkuData, SpuData } from '@/api/product/spu/type'
 //引入相应的子组件SpuForm
 import SpuForm from './SpuForm.vue'
 import SkuForm from './SkuForm.vue'
+import { ElMessage } from 'element-plus'
 const categoryStore = useCategoryStore()
 //场景值
 const scene = ref<number>(0) //0 显示已有Spu   1 添加或修改已有Spu   2 添加Sku
@@ -148,5 +153,21 @@ const findSku = async (row: SpuData) => {
     dialogShow.value = true
   }
 }
+//删除SPU按钮的回调
+const deleteSpu = async (row: SpuData) => {
+  const res = await reqRemoveSpu(row.id as number)
+  // console.log('res: ', res)
+  if (res.code === 200) {
+    ElMessage.success('删除成功')
+    //删除成功,重新请求数据
+    getHasSpu(recoreds.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  } else {
+    ElMessage.error('删除失败')
+  }
+}
+//路由组件销毁前清空仓库关于分类的数据
+onBeforeUnmount(() => {
+  categoryStore.$reset()
+})
 </script>
 <style scoped></style>
