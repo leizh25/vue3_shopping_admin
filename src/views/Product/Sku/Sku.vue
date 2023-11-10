@@ -20,7 +20,7 @@
             @click="updateSale(row)"
           ></el-button>
           <el-button type="warning" size="small" icon="edit" @click="ElMessage.info('程序员正在努力更新中...')"></el-button>
-          <el-button type="info" size="small" icon="infoFilled"></el-button>
+          <el-button type="info" size="small" icon="infoFilled" @click="lookSku()"></el-button>
           <el-button type="danger" size="small" icon="delete"></el-button>
         </template>
       </el-table-column>
@@ -36,6 +36,48 @@
       @size-change="handler"
     ></el-pagination>
   </el-card>
+  <!-- 抽屉组件: 展示商品详情 -->
+  <el-drawer v-model="drawer2" direction="rtl">
+    <template #header>
+      <h4>查看商品详情</h4>
+    </template>
+    <template #default>
+      <el-row style="margin: 10px 0">
+        <el-col :span="6">名称</el-col>
+        <el-col :span="18">华为1</el-col>
+      </el-row>
+      <el-row style="margin: 10px 0">
+        <el-col :span="6">描述</el-col>
+        <el-col :span="18">华为1343</el-col>
+      </el-row>
+      <el-row style="margin: 10px 0">
+        <el-col :span="6">价格</el-col>
+        <el-col :span="18">9878</el-col>
+      </el-row>
+      <el-row style="margin: 10px 0">
+        <el-col :span="6">平台属性</el-col>
+        <el-col :span="18">
+          <el-tag v-for="item in 10" :key="item" style="margin: 5px">123</el-tag>
+        </el-col>
+      </el-row>
+      <el-row style="margin: 10px 0">
+        <el-col :span="6">销售属性</el-col>
+        <el-col :span="18">
+          <el-tag v-for="item in 10" :key="item" style="margin: 5px">123</el-tag>
+        </el-col>
+      </el-row>
+      <el-row style="margin: 10px 0">
+        <el-col :span="6">商品图片</el-col>
+        <el-col :span="18">
+          <el-carousel :interval="4000" type="card" height="200px">
+            <el-carousel-item v-for="item in 6" :key="item">
+              <h3 text="2xl" justify="center">{{ item }}</h3>
+            </el-carousel-item>
+          </el-carousel>
+        </el-col>
+      </el-row>
+    </template>
+  </el-drawer>
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
@@ -51,6 +93,8 @@ let pageSize = ref<number>(10)
 //总共多少条数据
 let total = ref<number>(0)
 let skuArr = ref<SkuData[]>([])
+//控制抽屉显示与隐藏
+let drawer2 = ref<boolean>(false)
 //组件挂载完毕
 onMounted(() => {
   //请求数据
@@ -90,5 +134,26 @@ const updateSale = async (sku: SkuData) => {
     getHasSku(pageNo.value)
   }
 }
+//查看商品详情看牛回调
+const lookSku = () => {
+  //展示抽屉
+  drawer2.value = true
+}
 </script>
-<style scoped></style>
+<style scoped>
+.el-carousel__item h3 {
+  color: #475669;
+  opacity: 0.75;
+  line-height: 200px;
+  margin: 0;
+  text-align: center;
+}
+
+.el-carousel__item:nth-child(2n) {
+  background-color: #99a9bf;
+}
+
+.el-carousel__item:nth-child(2n + 1) {
+  background-color: #d3dce6;
+}
+</style>
