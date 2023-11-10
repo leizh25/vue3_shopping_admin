@@ -1,7 +1,7 @@
 //SPU 管理模块地址
 //引入Axios
 import request from '@/utils/request'
-import { AllTrademark, HasSaleAttrResponseData, HasSpuResponseData, SaleAttrResponseData, SkuData, SpuData, SpuHasImg } from './type'
+import { AllTrademark, HasSaleAttrResponseData, HasSpuResponseData, SaleAttrResponseData, SkuData, SkuInfoData, SpuData, SpuHasImg } from './type'
 
 enum API {
   //获取已有的SPU数据
@@ -20,6 +20,8 @@ enum API {
   UPDATESPU_URL = '/admin/product/updateSpuInfo',
   //追加一个新增的SKU地址
   ADDSKU_URL = '/admin/product/saveSkuInfo',
+  //查看某一个已有的SPU下的全部的售卖商品
+  SKUINFO_URL = '/admin/product/findBySpuId/',
 }
 
 //获取某一个三级分类下已有的SPU数据
@@ -54,3 +56,6 @@ export const reqAddOrUpdateSpu = (data: SpuData) => {
 
 //添加SKU的请求方法
 export const reqAddSku = (data: SkuData) => request.post<any, any>(API.ADDSKU_URL, data, { timeout: 10000 })
+
+//获取SKU数据
+export const reqSkuList = (spuId: number | string) => request.get<any, SkuInfoData>(API.SKUINFO_URL + spuId)

@@ -15,7 +15,7 @@
             <template #default="{ row }">
               <el-button type="primary" size="small" icon="plus" title="添加SKU" @click="addSku(row)"></el-button>
               <el-button type="warning" size="small" icon="edit" title="修改SPU" @click="updateSpu(row)"></el-button>
-              <el-button type="info" size="small" icon="view" title="查看SKU列标"></el-button>
+              <el-button type="info" size="small" icon="view" title="查看SKU列标" @click="findSku(row)"></el-button>
               <el-button type="danger" size="small" icon="delete" title="删除SPU"></el-button>
             </template>
           </el-table-column>
@@ -37,14 +37,27 @@
       <!-- 添加Sku子组件 -->
       <SkuForm v-show="scene == 2" @changeScene="changeScene" ref="SkuFormVC"></SkuForm>
     </el-card>
+    <!-- dialog对话框展示已有的SKu数据 -->
+    <el-dialog title="SKU列表" v-model="dialogShow">
+      <el-table border :data="skuArr">
+        <el-table-column lable="SKU名字" prop="skuName"></el-table-column>
+        <el-table-column lable="SKU价格" prop="price"></el-table-column>
+        <el-table-column lable="SKU重量" prop="weight"></el-table-column>
+        <el-table-column lable="SKU图片">
+          <template #default="{ row }">
+            <img :src="row.skuDefaultImg" style="width: 100px; height: 100px" />
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 //引入分类仓库
 import useCategoryStore from '@/store/modules/category'
-import { reqHasSpu } from '@/api/product/spu'
-import { HasSpuResponseData, Records, SpuData } from '@/api/product/spu/type'
+import { reqHasSpu, reqSkuList } from '@/api/product/spu'
+import { HasSpuResponseData, Records, SkuData, SpuData } from '@/api/product/spu/type'
 //引入相应的子组件SpuForm
 import SpuForm from './SpuForm.vue'
 import SkuForm from './SkuForm.vue'
@@ -63,6 +76,10 @@ let total = ref<number>(0)
 const SpuFormVC = ref<any>()
 //获取子组件实例
 const SkuFormVC = ref<any>()
+//存储全部的Sku数据
+let skuArr = ref<SkuData[]>([])
+//对话框显示隐藏
+let dialogShow = ref<boolean>(false)
 //监听三级分类ID的变化
 watch(
   () => categoryStore.c3Id,
@@ -120,6 +137,16 @@ const addSku = (spu: SpuData) => {
   scene.value = 2
   //调用子组件方法初始化添加Sku的数据
   SkuFormVC.value.initSkuData(categoryStore.c1Id, categoryStore.c2Id, spu)
+}
+//查看SKU列表的数据
+const findSku = async (row: SpuData) => {
+  const res = await reqSkuList(row.id as number)
+  // console.log('res: ', res)
+  if (res.code === 200) {
+    skuArr.value = res.data
+    //对话框显示
+    dialogShow.value = true
+  }
 }
 </script>
 <style scoped></style>
