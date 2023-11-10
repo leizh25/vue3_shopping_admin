@@ -1,17 +1,17 @@
 <template>
   <el-card>
     <el-table border style="margin: 10px 0" :data="skuArr">
-      <el-table-column lable="序号" type="index" width="80px"></el-table-column>
-      <el-table-column lable="名称" show-overflow-tooltip width="200px" prop="skuName"></el-table-column>
-      <el-table-column lable="描述" show-overflow-tooltip width="200px" prop="skuDesc"></el-table-column>
-      <el-table-column lable="图片" width="200px">
+      <el-table-column label="序号" type="index" width="80px" align="center"></el-table-column>
+      <el-table-column label="名称" show-overflow-tooltip width="250px" prop="skuName"></el-table-column>
+      <el-table-column label="描述" show-overflow-tooltip width="250px" prop="skuDesc"></el-table-column>
+      <el-table-column label="图片" width="150px" align="center">
         <template #default="{ row }">
           <img :src="row.skuDefaultImg" style="width: 100px; height: 100px" />
         </template>
       </el-table-column>
-      <el-table-column lable="重量" width="200px" prop="weight"></el-table-column>
-      <el-table-column lable="价格" width="200px" prop="price"></el-table-column>
-      <el-table-column lable="操作" width="250px" fixed="right">
+      <el-table-column label="重量" width="200px" prop="weight"></el-table-column>
+      <el-table-column label="价格" width="200px" prop="price"></el-table-column>
+      <el-table-column label="操作" width="300px" fixed="right">
         <template #default>
           <el-button type="primary" size="small" icon="top"></el-button>
           <el-button type="warning" size="small" icon="edit"></el-button>
@@ -35,7 +35,7 @@
 <script setup lang="ts">
 //引入请求
 import { reqSkuList } from '@/api/product/sku'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 //引入类型
 import { SkuData, SkuResponseData } from '@/api/product/sku/type'
 //分页器当前页码
