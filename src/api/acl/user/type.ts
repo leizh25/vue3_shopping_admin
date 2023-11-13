@@ -31,3 +31,29 @@ export interface UserResponseData extends ResponseData {
     pager: number
   }
 }
+
+//一个职位的TS类型
+export interface RoleData {
+  id: number
+  createTime: string
+  updateTime: string
+  roleName: string
+  remark: null
+}
+
+//全部职位列表
+export type AllRole = RoleData[]
+
+//获取全部职位的接口返回的数据TS类型
+export interface AllRoleResponseData extends ResponseData {
+  data: {
+    assignRoles: AllRole
+    allRolesList: AllRole
+  }
+}
+
+//给用户分配职位接口携带的TS类型
+export interface SetRoleData {
+  userId: number
+  roleIdList: number[]
+}
