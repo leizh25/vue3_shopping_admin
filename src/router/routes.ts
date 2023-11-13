@@ -73,7 +73,7 @@ export const constantRoutes = [
       },
       {
         path: '/acl/role',
-        component: () => import('@/views/Acl/Rule/Rule.vue'),
+        component: () => import('@/views/Acl/Role/Role.vue'),
         name: 'Role',
         meta: {
           title: '角色管理',
