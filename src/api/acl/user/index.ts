@@ -1,11 +1,26 @@
 //用户管理模块的接口
 import request from '@/utils/request'
-import { UserResponseData } from './type'
+import { UserResponseData, User } from './type'
 //枚举地址
 enum API {
   //获取全部的账号信息
   ALLUSER_URL = '/admin/acl/user/',
+  //添加一个新的用户账号
+  ADDUSER_URL = '/admin/acl/user/save',
+  //更新已有的用户账号
+  UPDATEUSER_URL = '/admin/acl/user/update',
 }
 
 //获取全部账号的接口
 export const reqUserList = (page: number, limit: number) => request.get<any, UserResponseData>(API.ALLUSER_URL + page + '/' + limit)
+
+//添加用户与更新用户的接口
+export const reqAddOrUpdateUser = (data: User) => {
+  //携带参数有ID,即为更新
+  if (data.id) {
+    return request.put<any, any>(API.UPDATEUSER_URL, data)
+  } else {
+    //无ID即为添加
+    return request.post<any, any>(API.ADDUSER_URL, data)
+  }
+}
