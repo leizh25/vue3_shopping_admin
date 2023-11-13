@@ -48,7 +48,7 @@
     <el-drawer v-model="isShowDrawer" direction="rtl">
       <!-- 头部标题:文字标题应该是动态的 -->
       <template #header>
-        <h4>添加用户</h4>
+        <h4>{{ userParams.id ? '编辑用户' : '添加用户' }}</h4>
       </template>
       <template #default>
         <el-form :model="userParams" :rules="rules" ref="formRef">
@@ -58,7 +58,7 @@
           <el-form-item label="用户昵称:" prop="name">
             <el-input placeholder="请输入昵称" v-model="userParams.name"></el-input>
           </el-form-item>
-          <el-form-item label="用户密码:" prop="password">
+          <el-form-item label="用户密码:" prop="password" v-if="userParams.id">
             <el-input placeholder="请输入密码" v-model="userParams.password"></el-input>
           </el-form-item>
         </el-form>
@@ -124,6 +124,7 @@ const addUser = () => {
     username: '',
     name: '',
     password: '',
+    id: 0,
   })
   //清除上一次表单验证错误信息   因为第一次点击的时候,表单组件还没有渲染完成,所以需要等到渲染完成之后再去清除验证错误信息, 以免报错
   // 办法一   使用nextTick
@@ -137,6 +138,12 @@ const addUser = () => {
 const updateUser = (user: User) => {
   //显示抽屉
   isShowDrawer.value = true
+  //存储收集已有的账号信息
+  Object.assign(userParams, user)
+  //清空之前的校验信息
+  nextTick(() => {
+    formRef.value.clearValidate()
+  })
 }
 //抽屉保存按钮的回调
 const save = async () => {
@@ -153,8 +160,10 @@ const save = async () => {
     isShowDrawer.value = false
     //提示成功
     ElMessage.success(`${userParams.id ? '更新' : '添加'}成功`)
-    //刷新页面
-    getHasUsers()
+    //重新获取用户列表
+    getHasUsers(userParams.id ? pageNo.value : 1)
+    //浏览器自动刷新页面
+    window.location.reload()
   } else {
     ElMessage.error(`${userParams.id ? '更新' : '添加'}失败`)
   }
