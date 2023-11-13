@@ -161,7 +161,7 @@ const save = async () => {
     //提示成功
     ElMessage.success(`${userParams.id ? '更新' : '添加'}成功`)
     //重新获取用户列表
-    getHasUsers(userParams.id ? pageNo.value : 1)
+    // getHasUsers(userParams.id ? pageNo.value : 1)
     //浏览器自动刷新页面
     window.location.reload()
   } else {
