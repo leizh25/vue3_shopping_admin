@@ -1,88 +1,94 @@
 <template>
-  <el-card>
-    <el-table border style="margin: 10px 0" :data="skuArr">
-      <el-table-column label="序号" type="index" width="80px" align="center"></el-table-column>
-      <el-table-column label="名称" show-overflow-tooltip width="250px" prop="skuName"></el-table-column>
-      <el-table-column label="描述" show-overflow-tooltip width="250px" prop="skuDesc"></el-table-column>
-      <el-table-column label="图片" width="150px" align="center">
-        <template #default="{ row }">
-          <img :src="row.skuDefaultImg" style="width: 100px; height: 100px" />
-        </template>
-      </el-table-column>
-      <el-table-column label="重量" width="200px" prop="weight"></el-table-column>
-      <el-table-column label="价格" width="200px" prop="price"></el-table-column>
-      <el-table-column label="操作" width="300px" fixed="right">
-        <template #default="{ row }">
-          <el-button
-            :type="row.isSale == 1 ? 'info' : 'primary'"
-            size="small"
-            :icon="row.isSale == 1 ? 'bottom' : 'top'"
-            @click="updateSale(row)"
-          ></el-button>
-          <el-button type="warning" size="small" icon="edit" @click="ElMessage.info('程序员正在努力更新中...')"></el-button>
-          <el-button type="info" size="small" icon="infoFilled" @click="lookSku(row)"></el-button>
-          <el-button type="danger" size="small" icon="delete"></el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      v-model:current-page="pageNo"
-      v-model:page-size="pageSize"
-      :page-sizes="[10, 20, 30, 40]"
-      :background="true"
-      :total="total"
-      layout="prev,pager,next,jumper,->,sizes,total"
-      @current-change="getHasSku"
-      @size-change="handler"
-    ></el-pagination>
-  </el-card>
-  <!-- 抽屉组件: 展示商品详情 -->
-  <el-drawer v-model="drawer2" direction="rtl">
-    <template #header>
-      <h4>查看商品详情</h4>
-    </template>
-    <template #default>
-      <el-row style="margin: 10px 0">
-        <el-col :span="6">名称</el-col>
-        <el-col :span="18">{{ skuInfo.skuNmae }}</el-col>
-      </el-row>
-      <el-row style="margin: 10px 0">
-        <el-col :span="6">描述</el-col>
-        <el-col :span="18">{{ skuInfo.skuDesc }}</el-col>
-      </el-row>
-      <el-row style="margin: 10px 0">
-        <el-col :span="6">价格</el-col>
-        <el-col :span="18">{{ skuInfo.price }}</el-col>
-      </el-row>
-      <el-row style="margin: 10px 0">
-        <el-col :span="6">平台属性</el-col>
-        <el-col :span="18">
-          <el-tag v-for="item in skuInfo.skuAttrValueList" :key="item.id" style="margin: 5px">{{ item.valueName }}</el-tag>
-        </el-col>
-      </el-row>
-      <el-row style="margin: 10px 0">
-        <el-col :span="6">销售属性</el-col>
-        <el-col :span="18">
-          <el-tag v-for="item in skuInfo.skuSaleAttrValueList" :key="item.id" style="margin: 5px">{{ item.saleAttrValueName }}</el-tag>
-        </el-col>
-      </el-row>
-      <el-row style="margin: 10px 0">
-        <el-col :span="6">商品图片</el-col>
-        <el-col :span="18">
-          <el-carousel :interval="4000" type="card" height="200px">
-            <el-carousel-item v-for="item in skuInfo.skuImageList" :key="item.id">
-              <img :src="item.imgUrl" style="width: 100%; height: 100%" />
-            </el-carousel-item>
-          </el-carousel>
-        </el-col>
-      </el-row>
-    </template>
-  </el-drawer>
+  <div>
+    <el-card>
+      <el-table border style="margin: 10px 0" :data="skuArr">
+        <el-table-column label="序号" type="index" width="80px" align="center"></el-table-column>
+        <el-table-column label="名称" show-overflow-tooltip width="250px" prop="skuName"></el-table-column>
+        <el-table-column label="描述" show-overflow-tooltip width="250px" prop="skuDesc"></el-table-column>
+        <el-table-column label="图片" width="150px" align="center">
+          <template #default="{ row }">
+            <img :src="row.skuDefaultImg" style="width: 100px; height: 100px" />
+          </template>
+        </el-table-column>
+        <el-table-column label="重量" width="200px" prop="weight"></el-table-column>
+        <el-table-column label="价格" width="200px" prop="price"></el-table-column>
+        <el-table-column label="操作" width="300px" fixed="right">
+          <template #default="{ row }">
+            <el-button
+              :type="row.isSale == 1 ? 'info' : 'primary'"
+              size="small"
+              :icon="row.isSale == 1 ? 'bottom' : 'top'"
+              @click="updateSale(row)"
+            ></el-button>
+            <el-button type="warning" size="small" icon="edit" @click="ElMessage.info('程序员正在努力更新中...')"></el-button>
+            <el-button type="info" size="small" icon="infoFilled" @click="lookSku(row)"></el-button>
+            <el-popconfirm :title="`你确定要删除${row.skuName}吗`" width="200px" @confirm="deleteSku(row.id)">
+              <template #reference>
+                <el-button type="danger" size="small" icon="delete"></el-button>
+              </template>
+            </el-popconfirm>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        v-model:current-page="pageNo"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 30, 40]"
+        :background="true"
+        :total="total"
+        layout="prev,pager,next,jumper,->,sizes,total"
+        @current-change="getHasSku"
+        @size-change="handler"
+      ></el-pagination>
+    </el-card>
+    <!-- 抽屉组件: 展示商品详情 -->
+    <el-drawer v-model="drawer2" direction="rtl">
+      <template #header>
+        <h4>查看商品详情</h4>
+      </template>
+      <template #default>
+        <el-row style="margin: 10px 0">
+          <el-col :span="6">名称</el-col>
+          <el-col :span="18">{{ skuInfo.skuNmae }}</el-col>
+        </el-row>
+        <el-row style="margin: 10px 0">
+          <el-col :span="6">描述</el-col>
+          <el-col :span="18">{{ skuInfo.skuDesc }}</el-col>
+        </el-row>
+        <el-row style="margin: 10px 0">
+          <el-col :span="6">价格</el-col>
+          <el-col :span="18">{{ skuInfo.price }}</el-col>
+        </el-row>
+        <el-row style="margin: 10px 0">
+          <el-col :span="6">平台属性</el-col>
+          <el-col :span="18">
+            <el-tag v-for="item in skuInfo.skuAttrValueList" :key="item.id" style="margin: 5px">{{ item.valueName }}</el-tag>
+          </el-col>
+        </el-row>
+        <el-row style="margin: 10px 0">
+          <el-col :span="6">销售属性</el-col>
+          <el-col :span="18">
+            <el-tag v-for="item in skuInfo.skuSaleAttrValueList" :key="item.id" style="margin: 5px">{{ item.saleAttrValueName }}</el-tag>
+          </el-col>
+        </el-row>
+        <el-row style="margin: 10px 0">
+          <el-col :span="6">商品图片</el-col>
+          <el-col :span="18">
+            <el-carousel :interval="4000" type="card" height="200px">
+              <el-carousel-item v-for="item in skuInfo.skuImageList" :key="item.id">
+                <img :src="item.imgUrl" style="width: 100%; height: 100%" />
+              </el-carousel-item>
+            </el-carousel>
+          </el-col>
+        </el-row>
+      </template>
+    </el-drawer>
+  </div>
 </template>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 //引入请求
-import { reqSkuList, reqCancelSale, reqSaleSku, reqSkuInfo } from '@/api/product/sku'
+import { reqSkuList, reqCancelSale, reqSaleSku, reqSkuInfo, reqDeleteSku } from '@/api/product/sku'
 //引入类型
 import { SkuData, SkuResponseData, SkuInfoData } from '@/api/product/sku/type'
 import { ElMessage } from 'element-plus'
@@ -144,6 +150,18 @@ const lookSku = async (row: SkuData) => {
   const res: SkuInfoData = await reqSkuInfo(row.id as number)
   // console.log('res: ', res)
   skuInfo.value = res.data
+}
+//删除某个商品的回调
+const deleteSku = async (id: number) => {
+  const res = await reqDeleteSku(id)
+  if (res.code === 200) {
+    //删除成功提示
+    ElMessage.success('删除成功')
+    //获取已有全部商品
+    getHasSku(skuArr.value.length > 1 ? pageNo.value : pageNo.value - 1)
+  } else {
+    ElMessage.error(res.data)
+  }
 }
 </script>
 <style scoped>
