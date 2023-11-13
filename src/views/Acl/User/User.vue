@@ -26,7 +26,7 @@
         <el-table-column label="更新时间" align="center" prop="updateTime" show-overflow-tooltip></el-table-column>
         <el-table-column label="操作" width="270px" align="center">
           <template #default="{ row }">
-            <el-button type="primary" size="small" icon="user">分配角色</el-button>
+            <el-button type="primary" size="small" icon="user" @click="setRole(row)">分配角色</el-button>
             <el-button type="primary" size="small" icon="edit" @click="updateUser(row)">编辑</el-button>
             <el-button type="danger" size="small" icon="delete">删除</el-button>
           </template>
@@ -70,6 +70,30 @@
         </div>
       </template>
     </el-drawer>
+    <!-- 抽屉结构: 用于分配角色 -->
+    <el-drawer v-model="isShowDrawer2">
+      <template #header>
+        <h4>分配角色(职位)</h4>
+      </template>
+      <template #default>
+        <el-form>
+          <el-form-item label="用户姓名">
+            <el-input v-model="userParams.username" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="职位列表">
+            <el-checkbox>全选</el-checkbox>
+            <!-- 显示职位的复选框 -->
+            <el-checkbox-group>
+              <el-checkbox v-for="(role, index) in 10" :key="index" :label="role">{{ role }}</el-checkbox>
+            </el-checkbox-group>
+          </el-form-item>
+        </el-form>
+      </template>
+      <template #footer>
+        <el-button>取消</el-button>
+        <el-button type="primary">确定</el-button>
+      </template>
+    </el-drawer>
   </div>
 </template>
 <script setup lang="ts">
@@ -95,6 +119,8 @@ let userParams = reactive<User>({
 })
 //获取表单组件实例
 const formRef = ref<any>(null)
+//控制抽屉2(分配角色的抽屉)的显示与隐藏
+let isShowDrawer2 = ref<boolean>(false)
 //获取全部已有的账号信息
 const getHasUsers = async (page = 1) => {
   //收集当前页码
@@ -203,6 +229,14 @@ const rules = {
   name: [{ required: true, trigger: 'blur', validator: validateName }],
   //密码
   password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+}
+//分配角色按钮的回调
+const setRole = (user: User) => {
+  // console.log('user: ', user)
+  //显示抽屉2
+  isShowDrawer2.value = true
+  //存储已有的用户信息
+  Object.assign(userParams, user)
 }
 </script>
 <style scoped>
