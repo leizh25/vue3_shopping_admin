@@ -3,11 +3,11 @@
     <el-card style="height: 70px; margin: 10px 0">
       <el-form :inline="true" class="form">
         <el-form-item label="用户名:">
-          <el-input placeholder="输入用户名进行搜索"></el-input>
+          <el-input placeholder="输入用户名进行搜索" v-model="keyWord"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary">搜索</el-button>
-          <el-button>重置</el-button>
+          <el-button type="primary" :disabled="keyWord.trim() === ''" @click="search">搜索</el-button>
+          <el-button @click="reset">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -105,6 +105,7 @@ import { nextTick, onMounted, reactive, ref } from 'vue'
 import { reqUserList, reqAddOrUpdateUser, reqAllRole, reqSetUserRole, reqRemoveUser, reqDeleteSelectUser } from '@/api/acl/user/index.ts'
 import { UserResponseData, Records, User, AllRoleResponseData, AllRole, SetRoleData, RoleData } from '@/api/acl/user/type'
 import { ElMessage } from 'element-plus'
+import useLayoutSettingStore from '@/store/modules/setting'
 //默认第一页
 let pageNo = ref<number>(1)
 //一页展示几条数据
@@ -131,11 +132,15 @@ let allRole = ref<AllRole>([])
 let userRole = ref<AllRole>([])
 //准备数组存储批量选中的用户ID
 let selectIdArr = ref<User[]>([])
+//收集用户输入进来的关键字
+let keyWord = ref<string>('')
+// 获取模板setting仓库
+const layoutSettingStore = useLayoutSettingStore()
 //获取全部已有的账号信息
 const getHasUsers = async (page = 1) => {
   //收集当前页码
   pageNo.value = page
-  const res: UserResponseData = await reqUserList(pageNo.value, pageSize.value)
+  const res: UserResponseData = await reqUserList(pageNo.value, pageSize.value, keyWord.value)
   // console.log('res: ', res)
   //存储数据
   if (res.code === 200) {
@@ -330,6 +335,16 @@ const deleteSelectUser = async () => {
   } else {
     ElMessage.error('批量删除失败')
   }
+}
+//搜索按钮回调
+const search = async () => {
+  //根据关键字获取相应的用户数据
+  getHasUsers()
+  keyWord.value = ''
+}
+//重置按钮回调
+const reset = () => {
+  layoutSettingStore.refresh = !layoutSettingStore.refresh
 }
 </script>
 <style scoped>
