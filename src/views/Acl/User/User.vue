@@ -51,14 +51,14 @@
         <h4>添加用户</h4>
       </template>
       <template #default>
-        <el-form v-model="userParams">
-          <el-form-item label="用户姓名:">
+        <el-form :model="userParams" :rules="rules" ref="formRef">
+          <el-form-item label="用户姓名:" prop="username">
             <el-input placeholder="请输入姓名" v-model="userParams.username"></el-input>
           </el-form-item>
-          <el-form-item label="用户昵称:">
+          <el-form-item label="用户昵称:" prop="name">
             <el-input placeholder="请输入昵称" v-model="userParams.name"></el-input>
           </el-form-item>
-          <el-form-item label="用户密码:">
+          <el-form-item label="用户密码:" prop="password">
             <el-input placeholder="请输入密码" v-model="userParams.password"></el-input>
           </el-form-item>
         </el-form>
@@ -73,7 +73,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, reactive, ref } from 'vue'
 import { reqUserList, reqAddOrUpdateUser } from '@/api/acl/user/index.ts'
 import { UserResponseData, Records, User } from '@/api/acl/user/type'
 import { ElMessage } from 'element-plus'
@@ -93,7 +93,8 @@ let userParams = reactive<User>({
   name: '',
   password: '',
 })
-
+//获取表单组件实例
+const formRef = ref<any>(null)
 //获取全部已有的账号信息
 const getHasUsers = async (page = 1) => {
   //收集当前页码
@@ -124,6 +125,13 @@ const addUser = () => {
     name: '',
     password: '',
   })
+  //清除上一次表单验证错误信息   因为第一次点击的时候,表单组件还没有渲染完成,所以需要等到渲染完成之后再去清除验证错误信息, 以免报错
+  // 办法一   使用nextTick
+  nextTick(() => {
+    formRef.value.clearValidate()
+  })
+  //办法二  使用?.语法
+  // formRef.value?.clearValidate()
 }
 //更新用户按钮回调
 const updateUser = (user: User) => {
@@ -132,6 +140,9 @@ const updateUser = (user: User) => {
 }
 //抽屉保存按钮的回调
 const save = async () => {
+  //点击保存按钮的时候,务必需要保证表单全部符合条件再去发送请求
+  await formRef.value.validate()
+
   // console.log('userParams: ', userParams)
   //点击保存按钮:可能是添加新的用户,或者是更新已有的用户
   const res: any = await reqAddOrUpdateUser(userParams)
@@ -152,6 +163,37 @@ const save = async () => {
 const cancel = () => {
   //关闭抽屉
   isShowDrawer.value = false
+}
+
+//校验用户名的回调函数
+const validateUsername = (_rule: any, value: any, callback: any) => {
+  // console.log(value)
+  // 用户名字或昵称,长度至少是5位
+  if (value.trim().length > 5) callback()
+  else callback(new Error('用户名长度至少是5位'))
+}
+//校验昵称的回调函数
+const validateName = (_rule: any, value: any, callback: any) => {
+  // console.log(value)
+  // 用户名字或昵称,长度至少是5位
+  if (value.trim().length > 5) callback()
+  else callback(new Error('用户昵称长度至少是5位'))
+}
+//校验密码的回调函数
+const validatePassword = (_rule: any, value: any, callback: any) => {
+  // console.log(value)
+  // 用户名字或昵称,长度至少是5位
+  if (value.trim().length > 6) callback()
+  else callback(new Error('用户昵称长度至少是6位'))
+}
+//表单校验规则对象
+const rules = {
+  //用户名
+  username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+  //用户名
+  name: [{ required: true, trigger: 'blur', validator: validateName }],
+  //密码
+  password: [{ required: true, trigger: 'blur', validator: validatePassword }],
 }
 </script>
 <style scoped>
