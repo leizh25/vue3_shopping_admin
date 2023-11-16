@@ -20,13 +20,12 @@ export interface RoleResponseData extends ResponseData {
   data: {
     records: Records[]
     total: number
-    size:number
-    current:number
-    orders:[]
-    optimizeCountSql:boolean
-    hitCount:boolean
-    searchCount:boolean
-    pages:number
-    
+    size: number
+    current: number
+    orders: []
+    optimizeCountSql: boolean
+    hitCount: boolean
+    searchCount: boolean
+    pages: number
   }
 }
