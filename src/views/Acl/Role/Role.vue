@@ -21,7 +21,7 @@
         <el-table-column align="center" label="更新时间" show-overflow-tooltip prop="updateTime"></el-table-column>
         <el-table-column align="center" label="操作" width="280">
           <template #default="{ row }">
-            <el-button size="small" icon="user" type="primary">分配权限</el-button>
+            <el-button size="small" icon="user" type="primary" @click="setPermission(row)">分配权限</el-button>
             <el-button size="small" icon="edit" type="warning" @click="updateRole(row)">编辑</el-button>
             <el-button size="small" icon="delete" type="danger">删除</el-button>
           </template>
@@ -51,12 +51,28 @@
         <el-button type="primary" @click="save">确定</el-button>
       </template>
     </el-dialog>
+    <!-- 抽屉组件  分配角色的菜单权限与按钮权限 -->
+    <el-drawer v-model="isShowDrawer" direction="rtl">
+      <template #header>
+        <h4>分配菜单与按钮权限</h4>
+      </template>
+      <template #default>
+        <!-- 树形控件 -->
+        <el-tree :data="menuArr" show-checkbox node-key="id" default-expand-all :default-checked-keys="[5, 6]" :props="defaultProps" />
+      </template>
+      <template #footer>
+        <div style="flex: auto">
+          <el-button @click="isShowDrawer = false">取消</el-button>
+          <el-button type="primary">确定</el-button>
+        </div>
+      </template>
+    </el-drawer>
   </div>
 </template>
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
-import { reqAllRoleList, reqAddOrUpdateRole } from '@/api/acl/role'
-import { Records, RoleResponseData } from '@/api/acl/role/type'
+import { reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList } from '@/api/acl/role'
+import { Records, RoleResponseData, MenuDataResponse, MenuList } from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
 import { RoleData } from '@/api/acl/role/type'
 import { ElMessage } from 'element-plus'
@@ -79,6 +95,15 @@ let RoleParams = reactive<RoleData>({
 })
 //职位表单组件
 const roleNameFormRef = ref<any>()
+//控制抽屉组件的显示与隐藏
+let isShowDrawer = ref<boolean>(false)
+//树形控件的展示数据
+const defaultProps = {
+  children: 'children',
+  label: 'name',
+}
+//定义数组存储用户权限的数据
+let menuArr = ref<MenuList>([])
 //组件挂载完毕
 onMounted(() => {
   // 加载数据
@@ -151,6 +176,19 @@ const save = async () => {
     getHasRole(RoleParams.id ? pageNo.value : 1)
   } else {
     ElMessage.error(res.message)
+  }
+}
+//分配权限按钮回调
+const setPermission = async (role: RoleData) => {
+  isShowDrawer.value = true
+  // console.log('role: ', role)
+  //收集当前要分配权限的职位数据
+  Object.assign(RoleParams, role)
+  //根据职位获取权限数据
+  const res: MenuDataResponse = await reqAllMenuList(role.id as number)
+  // console.log('res: ', res)
+  if (res.code === 200) {
+    menuArr.value = res.data
   }
 }
 </script>
