@@ -44,4 +44,4 @@ export const reqSetUserRole = (data: SetRoleData) => request.post<any, any>(API.
 export const reqRemoveUser = (userId: number) => request.delete<any, any>(API.DELETEUSER_URL + userId)
 
 //批量删除用户的接口
-export const reqDeleteSelectUser = (idList: number[]) => request.delete<any.any>(API.DELETEALLUSER_URL, { data: idList })
+export const reqDeleteSelectUser = (idList: number[]) => request.delete<any,any>(API.DELETEALLUSER_URL, { data: idList })
