@@ -12,7 +12,7 @@
       </el-form>
     </el-card>
     <el-card>
-      <el-button type="primary" icon="plus">添加职位</el-button>
+      <el-button type="primary" icon="plus" @click="addRole">添加职位</el-button>
       <el-table border style="margin: 10px 0" :data="allRole">
         <el-table-column type="index" align="center" label="#"></el-table-column>
         <el-table-column align="center" label="ID" prop="id"></el-table-column>
@@ -20,9 +20,9 @@
         <el-table-column align="center" label="创建时间" show-overflow-tooltip prop="createTime"></el-table-column>
         <el-table-column align="center" label="更新时间" show-overflow-tooltip prop="updateTime"></el-table-column>
         <el-table-column align="center" label="操作" width="280">
-          <template #default>
+          <template #default="{ row }">
             <el-button size="small" icon="user" type="primary">分配权限</el-button>
-            <el-button size="small" icon="edit" type="warning">编辑</el-button>
+            <el-button size="small" icon="edit" type="warning" @click="updateRole(row)">编辑</el-button>
             <el-button size="small" icon="delete" type="danger">删除</el-button>
           </template>
         </el-table-column>
@@ -39,6 +39,18 @@
         @size-change="sizeChangeHandle"
       />
     </el-card>
+    <!-- 添加职位与更新职位的对话框弹窗 -->
+    <el-dialog v-model="isSHowDialog" title="添加职位">
+      <el-form>
+        <el-form-item label="职位名称">
+          <el-input placeholder="输入职位名称"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="isSHowDialog = false">取消</el-button>
+        <el-button type="primary">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 <script setup lang="ts">
@@ -46,6 +58,7 @@ import { onMounted, ref } from 'vue'
 import { reqAllRoleList } from '@/api/acl/role'
 import { Records, RoleResponseData } from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
+import { RoleData } from '@/api/acl/user/type'
 const layoutSettingStore = useLayoutSettingStore()
 //当前页码
 const pageNo = ref<number>(1)
@@ -57,6 +70,8 @@ let keyWord = ref<string>('')
 let allRole = ref<Records[]>([])
 //职位总数量
 let total = ref<number>(0)
+//对话框的显示与隐藏
+let isSHowDialog = ref<boolean>(false)
 //组件挂载完毕
 onMounted(() => {
   // 加载数据
@@ -83,6 +98,14 @@ const search = () => {
 //重置按钮回调
 const reset = () => {
   layoutSettingStore.refresh = !layoutSettingStore.refresh
+}
+//添加职位按钮回调
+const addRole = () => {
+  isSHowDialog.value = true
+}
+//更新职位按钮回调
+const updateRole = (role: RoleData) => {
+  isSHowDialog.value = true
 }
 </script>
 <style scoped>
