@@ -23,7 +23,11 @@
           <template #default="{ row }">
             <el-button size="small" icon="user" type="primary" @click="setPermission(row)">分配权限</el-button>
             <el-button size="small" icon="edit" type="warning" @click="updateRole(row)">编辑</el-button>
-            <el-button size="small" icon="delete" type="danger">删除</el-button>
+            <el-popconfirm :title="`你确定要删除 ${row.roleName} 职位吗？`" width="260" @confirm="deleteRole(row.id)">
+              <template #reference>
+                <el-button size="small" icon="delete" type="danger">删除</el-button>
+              </template>
+            </el-popconfirm>
           </template>
         </el-table-column>
       </el-table>
@@ -62,7 +66,7 @@
 </template>
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
-import { reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList, reqSetPermission } from '@/api/acl/role'
+import { reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList, reqSetPermission, reqRemoveRole } from '@/api/acl/role'
 import { Records, RoleResponseData, MenuDataResponse, MenuList, MenuData } from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
 import { RoleData } from '@/api/acl/role/type'
@@ -192,8 +196,7 @@ const filterSelectArr = (allData: MenuList, initArr: any) => {
     if (item.select && item.level === 4) {
       initArr.push(item.id)
     }
-    if (item.children && item.children.length >= 1)
-      filterSelectArr(item.children, initArr)
+    if (item.children && item.children.length >= 1) filterSelectArr(item.children, initArr)
   })
   return initArr
 }
@@ -212,6 +215,16 @@ const savePermission = async () => {
     isShowDrawer.value = false
     // 刷新页面(更新实时数据)
     window.location.reload()
+  } else {
+    ElMessage.error(res.message)
+  }
+}
+//删除已有的职位
+const deleteRole = async (roleId: number) => {
+  const res = await reqRemoveRole(roleId)
+  if (res.code === 200) {
+    ElMessage.success('删除成功')
+    getHasRole(allRole.value.length > 1 ? pageNo.value : 1)
   } else {
     ElMessage.error(res.message)
   }
