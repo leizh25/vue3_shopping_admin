@@ -42,7 +42,7 @@ export interface MenuData {
   type: number
   status: null
   level: number
-  children?: MenuList[]
+  children?: MenuList
   select: boolean
 }
 export type MenuList = MenuData[]

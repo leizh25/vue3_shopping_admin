@@ -28,16 +28,7 @@
         </el-table-column>
       </el-table>
       <!-- 分页器 -->
-      <el-pagination
-        v-model:current-page="pageNo"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 30, 40]"
-        :background="true"
-        layout="prev, pager, next, jumper, ->, sizes, total "
-        :total="total"
-        @current-change="getHasRole"
-        @size-change="sizeChangeHandle"
-      />
+      <el-pagination v-model:current-page="pageNo" v-model:page-size="pageSize" :page-sizes="[10, 20, 30, 40]" :background="true" layout="prev, pager, next, jumper, ->, sizes, total " :total="total" @current-change="getHasRole" @size-change="sizeChangeHandle" />
     </el-card>
     <!-- 添加职位与更新职位的对话框弹窗 -->
     <el-dialog v-model="isSHowDialog" :title="`${RoleParams.id ? '更新' : '添加'}角色`">
@@ -58,12 +49,12 @@
       </template>
       <template #default>
         <!-- 树形控件 -->
-        <el-tree :data="menuArr" show-checkbox node-key="id" default-expand-all :default-checked-keys="[5, 6]" :props="defaultProps" />
+        <el-tree ref="tree" :data="menuArr" show-checkbox node-key="id" default-expand-all :default-checked-keys="selectArr" :props="defaultProps" />
       </template>
       <template #footer>
         <div style="flex: auto">
           <el-button @click="isShowDrawer = false">取消</el-button>
-          <el-button type="primary">确定</el-button>
+          <el-button type="primary" @click="savePermission">确定</el-button>
         </div>
       </template>
     </el-drawer>
@@ -71,8 +62,8 @@
 </template>
 <script setup lang="ts">
 import { nextTick, onMounted, reactive, ref } from 'vue'
-import { reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList } from '@/api/acl/role'
-import { Records, RoleResponseData, MenuDataResponse, MenuList } from '@/api/acl/role/type'
+import { reqAllRoleList, reqAddOrUpdateRole, reqAllMenuList, reqSetPermission } from '@/api/acl/role'
+import { Records, RoleResponseData, MenuDataResponse, MenuList, MenuData } from '@/api/acl/role/type'
 import useLayoutSettingStore from '@/store/modules/setting'
 import { RoleData } from '@/api/acl/role/type'
 import { ElMessage } from 'element-plus'
@@ -104,6 +95,10 @@ const defaultProps = {
 }
 //定义数组存储用户权限的数据
 let menuArr = ref<MenuList>([])
+//准备一个数组:数组用于存储勾选的节点ID(四级)
+let selectArr = ref<number[]>([])
+//获取属性控件组件
+let tree = ref<any>()
 //组件挂载完毕
 onMounted(() => {
   // 加载数据
@@ -189,6 +184,36 @@ const setPermission = async (role: RoleData) => {
   // console.log('res: ', res)
   if (res.code === 200) {
     menuArr.value = res.data
+    selectArr.value = filterSelectArr(menuArr.value, [])
+  }
+}
+const filterSelectArr = (allData: MenuList, initArr: any) => {
+  allData.forEach((item: MenuData) => {
+    if (item.select && item.level === 4) {
+      initArr.push(item.id)
+    }
+    if (item.children && item.children.length >= 1)
+      filterSelectArr(item.children, initArr)
+  })
+  return initArr
+}
+//抽屉确定按钮的回调
+const savePermission = async () => {
+  //职位的ID
+  const roleId = RoleParams.id as number
+  //选中节点的ID
+  let arr = tree.value.getCheckedKeys()
+  let arr1 = tree.value.getHalfCheckedKeys()
+  let res: any = await reqSetPermission(roleId, arr.concat(arr1))
+  if (res.code === 200) {
+    //提示信息
+    ElMessage.success('分配权限成功')
+    //关闭抽屉
+    isShowDrawer.value = false
+    // 刷新页面(更新实时数据)
+    window.location.reload()
+  } else {
+    ElMessage.error(res.message)
   }
 }
 </script>
