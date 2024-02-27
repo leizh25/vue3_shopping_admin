@@ -2,7 +2,7 @@
   <div>
     <el-card>
       <div class="box">
-        <img :src="userStore.avatar" class="avatar">
+        <img :src="userStore.avatar" class="avatar" />
         <div>
           <h3 class="title">{{ getTime() }}好呀{{ userStore.userName }}</h3>
           <p class="subtitle">硅谷甄选运营平台</p>
@@ -19,7 +19,7 @@
 import { onMounted } from 'vue'
 //获取仓库
 import useUserStore from '@/store/modules/user'
-import { getTime } from '@/utils/time';
+import { getTime } from '@/utils/time'
 const userStore = useUserStore()
 //首页挂载完毕发请求获取用户信息
 onMounted(() => {
@@ -49,7 +49,7 @@ onMounted(() => {
     color: skyblue;
   }
 }
-.bottom{
+.bottom {
   display: flex;
   justify-content: center;
   margin-top: 10px;
