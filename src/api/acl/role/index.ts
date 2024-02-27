@@ -14,7 +14,7 @@ enum API {
   //给相应的角色分配权限
   SETPERMISSION_URL = '/admin/acl/permission/doAssign/?',
   //删除已有的职位
-  REMOVEROLE_URL = "/admin/acl/role/remove/",
+  REMOVEROLE_URL = '/admin/acl/role/remove/',
 }
 //获取全部的职位
 export const reqAllRoleList = (page: number, limit: number, roleName: string) =>

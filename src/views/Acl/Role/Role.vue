@@ -32,7 +32,16 @@
         </el-table-column>
       </el-table>
       <!-- 分页器 -->
-      <el-pagination v-model:current-page="pageNo" v-model:page-size="pageSize" :page-sizes="[10, 20, 30, 40]" :background="true" layout="prev, pager, next, jumper, ->, sizes, total " :total="total" @current-change="getHasRole" @size-change="sizeChangeHandle" />
+      <el-pagination
+        v-model:current-page="pageNo"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 30, 40]"
+        :background="true"
+        layout="prev, pager, next, jumper, ->, sizes, total "
+        :total="total"
+        @current-change="getHasRole"
+        @size-change="sizeChangeHandle"
+      />
     </el-card>
     <!-- 添加职位与更新职位的对话框弹窗 -->
     <el-dialog v-model="isSHowDialog" :title="`${RoleParams.id ? '更新' : '添加'}角色`">
