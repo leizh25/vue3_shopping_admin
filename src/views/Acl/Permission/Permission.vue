@@ -6,9 +6,15 @@
       <el-table-column prop="updateTime" label="修改时间" />
       <el-table-column prop="date" label="操作">
         <template #default="{ row }">
-          <el-button type="primary" size="small" :disabled="row.level === 4" @click="addPermission(row)">添加{{ row.level === 3 ? '功能' : '菜单' }}</el-button>
+          <el-button type="primary" size="small" :disabled="row.level === 4" @click="addPermission(row)">
+            添加{{ row.level === 3 ? '功能' : '菜单' }}
+          </el-button>
           <el-button type="primary" size="small" :disabled="row.level === 1" @click="updatePermission(row)">编辑</el-button>
-          <el-button type="primary" size="small" :disabled="row.level === 1">删除</el-button>
+          <el-popconfirm width="200" :title="`确定要删除${row.name}吗？`" @confirm="deletePermission(row.id)">
+            <template #reference>
+              <el-button type="primary" size="small" :disabled="row.level === 1">删除</el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
@@ -35,19 +41,19 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 //引入获取菜单请求API
-import { reqAllPermission, reqAddOrUpdateMenu } from '@/api/acl/menu'
+import { reqAllPermission, reqAddOrUpdateMenu, reqRemoveMenu } from '@/api/acl/menu'
 //引入ts类型
 import type { PermissionResponse, Permission, MenuParams } from '@/api/acl/menu/type'
-import { ElMessage } from 'element-plus';
+import { ElMessage } from 'element-plus'
 let permissionArr = ref<Permission[]>([])
 //控制对话框的显示与隐藏
 const dialogVisible = ref<boolean>(false)
 //携带的参数
 let menuData = reactive<MenuParams>({
-  "code": "",
-  "level": 0,
-  "name": "",
-  "pid": 0,
+  code: '',
+  level: 0,
+  name: '',
+  pid: 0,
 })
 onMounted(() => {
   getHasPermission()
@@ -64,10 +70,10 @@ const addPermission = (row: Permission) => {
   //清空数据
   Object.assign(menuData, {
     id: 0,
-    "code": "",
-    "level": 0,
-    "name": "",
-    "pid": 0,
+    code: '',
+    level: 0,
+    name: '',
+    pid: 0,
   })
   dialogVisible.value = true
   //收集新增的菜单的level数值
@@ -93,7 +99,14 @@ const save = async () => {
     //再次获取数据
     getHasPermission()
   }
-
+}
+//删除按钮的回调
+const deletePermission = async (id: number) => {
+  const res: any = await reqRemoveMenu(id)
+  if (res.code === 200) {
+    ElMessage.success('删除成功')
+    getHasPermission()
+  }
 }
 </script>
 <style scoped></style>
